@@ -16,8 +16,8 @@
 # */
 
 clear
-echo "Building netscaleradc-backup"
-echo "-------------------------"
+echo "Building netscaleradc-acme"
+echo "--------------------------"
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 DIR="$( cd -P "$( dirname "$SOURCE" )/.." && pwd )"
@@ -30,18 +30,18 @@ rm -rf output/pkg/*
 
 
 echo "Build executables per platform"
-OUTPUT="output/bin/linux/amd64/netscaleradc-backup"
+OUTPUT="output/bin/linux/amd64/netscaleradc-acme"
 echo " - linux-amd64 --> $OUTPUT"
 GOOS=linux GOARCH=amd64 go build -o $OUTPUT main.go
 
-OUTPUT="output/bin/windows/amd64/netscaleradc-backup.exe"
+OUTPUT="output/bin/windows/amd64/netscaleradc-acme.exe"
 echo " - windows-amd64 --> $OUTPUT"
 GOOS=windows GOARCH=amd64 go build -o $OUTPUT main.go
 
-OUTPUT="output/bin/darwin/amd64/netscaleradc-backup"
+OUTPUT="output/bin/darwin/amd64/netscaleradc-acme"
 echo " - darwin-amd64 --> $OUTPUT"
 GOOS=darwin GOARCH=amd64 go build -o $OUTPUT main.go
 
-OUTPUT="output/bin/darwin/arm64/netscaleradc-backup"
+OUTPUT="output/bin/darwin/arm64/netscaleradc-acme"
 echo " - darwin-arm64 --> $OUTPUT"
 GOOS=darwin GOARCH=arm64 go build -o $OUTPUT main.go

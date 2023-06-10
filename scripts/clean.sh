@@ -16,8 +16,8 @@
 # */
 
 clear
-echo "Cleaning up netscaleradc-backup"
-echo "----------------------------"
+echo "Cleaning up netscaleradc-acme"
+echo "-----------------------------"
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 DIR="$( cd -P "$( dirname "$SOURCE" )/.." && pwd )"
