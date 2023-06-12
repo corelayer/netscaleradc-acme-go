@@ -1,3 +1,5 @@
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230509103033-105855723b63 h1:18T8OBjrgUrGXt/r6pPIwtHlN5BRmuCPxXFe8yvtrl0=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230509103033-105855723b63/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
