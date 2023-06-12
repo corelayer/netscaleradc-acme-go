@@ -16,11 +16,16 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/corelayer/netscaleradc-acme-go/cmd"
+)
 
 // Banner generated at https://patorjk.com/software/taag/#p=display&v=3&f=Ivrit&t=NetScaler%20ADC%20-%20ACME
 var banner = "\n\n  _   _      _   ____            _                _    ____   ____              _    ____ __  __ _____ \n | \\ | | ___| |_/ ___|  ___ __ _| | ___ _ __     / \\  |  _ \\ / ___|            / \\  / ___|  \\/  | ____|\n |  \\| |/ _ \\ __\\___ \\ / __/ _` | |/ _ \\ '__|   / _ \\ | | | | |      _____    / _ \\| |   | |\\/| |  _|  \n | |\\  |  __/ |_ ___) | (_| (_| | |  __/ |     / ___ \\| |_| | |___  |_____|  / ___ \\ |___| |  | | |___ \n |_| \\_|\\___|\\__|____/ \\___\\__,_|_|\\___|_|    /_/   \\_\\____/ \\____|         /_/   \\_\\____|_|  |_|_____|\n                                                                                                       "
 
 func main() {
 	fmt.Println(banner)
+	cmd.Execute()
 }
