@@ -23,8 +23,8 @@ clean:
 coverage:
 	bash scripts/coverage.sh
 
-run:
-	go run main.go
+run-daemon:
+	go run cmd/lens/main.go
 
 test:
 	bash scripts/test.sh

@@ -19,7 +19,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/corelayer/netscaleradc-acme-go/cmd"
+	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd"
 )
 
 // Banner generated at https://patorjk.com/software/taag/#p=display&v=3&f=Ivrit&t=NetScaler%20ADC%20-%20ACME
