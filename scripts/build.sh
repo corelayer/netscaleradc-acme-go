@@ -28,20 +28,55 @@ echo "Cleaning up previous builds and packages"
 rm -rf output/bin/*
 rm -rf output/pkg/*
 
+INPUT="cmd/lens/main.go"
+OUTBASE="output/bin"
+OUTFILE="lens"
 
 echo "Build executables per platform"
-OUTPUT="output/bin/linux/amd64/netscaleradc-acme"
-echo " - linux-amd64 --> $OUTPUT"
-GOOS=linux GOARCH=amd64 go build -o $OUTPUT main.go
+GOOS=linux
+GOARCH=amd64
+OUTEXT=""
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
 
-OUTPUT="output/bin/windows/amd64/netscaleradc-acme.exe"
-echo " - windows-amd64 --> $OUTPUT"
-GOOS=windows GOARCH=amd64 go build -o $OUTPUT main.go
+GOOS=linux
+GOARCH=arm64
+OUTEXT=""
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
 
-OUTPUT="output/bin/darwin/amd64/netscaleradc-acme"
-echo " - darwin-amd64 --> $OUTPUT"
-GOOS=darwin GOARCH=amd64 go build -o $OUTPUT main.go
+GOOS=windows
+GOARCH=amd64
+OUTEXT=".exe"
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
 
-OUTPUT="output/bin/darwin/arm64/netscaleradc-acme"
-echo " - darwin-arm64 --> $OUTPUT"
-GOOS=darwin GOARCH=arm64 go build -o $OUTPUT main.go
+GOOS=windows
+GOARCH=arm64
+OUTEXT=".exe"
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
+
+GOOS=darwin
+GOARCH=amd64
+OUTEXT=""
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
+
+GOOS=darwin
+GOARCH=arm64
+OUTEXT=""
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
+
+GOOS=freebsd
+GOARCH=amd64
+OUTEXT=""
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
+
+GOOS=freebsd
+GOARCH=arm64
+OUTEXT=""
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT

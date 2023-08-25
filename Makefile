@@ -23,6 +23,9 @@ clean:
 coverage:
 	bash scripts/coverage.sh
 
+run:
+	go run cmd/lens/main.go
+
 run-daemon:
 	go run cmd/lens/main.go
 

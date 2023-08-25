@@ -16,22 +16,16 @@
 
 package cmd
 
-import (
-	"github.com/spf13/cobra"
-
-	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
-)
-
-var clientCmd = &cobra.Command{
-	Use:   "client",
-	Short: "Client mode",
-	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
-		c := controllers.Client{}
-		c.Execute()
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(clientCmd)
-}
+// var clientCmd = &cobra.Command{
+// 	Use:   "client",
+// 	Short: "Client mode",
+// 	Run: func(cmd *cobra.Command, args []string) {
+// 		// Do Stuff Here
+// 		c := controllers.Client{}
+// 		c.Execute()
+// 	},
+// }
+//
+// func init() {
+// 	rootCmd.AddCommand(clientCmd)
+// }

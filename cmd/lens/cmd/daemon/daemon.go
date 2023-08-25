@@ -14,24 +14,23 @@
  *    limitations under the License.
  */
 
-package cmd
+package daemon
 
 import (
+	"github.com/corelayer/clapp/pkg/clapp"
 	"github.com/spf13/cobra"
 
 	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
 )
 
-var daemonCmd = &cobra.Command{
-	Use:   "daemon",
-	Short: "Daemon mode",
-	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
-		c := controllers.Daemon{}
-		c.Execute()
+var Command = clapp.Command{
+	Command: &cobra.Command{
+		Use:   "daemon",
+		Short: "Daemon mode",
+		Run: func(cmd *cobra.Command, args []string) {
+			// Do Stuff Here
+			c := controllers.Daemon{}
+			c.Execute()
+		},
 	},
-}
-
-func init() {
-	rootCmd.AddCommand(daemonCmd)
 }
