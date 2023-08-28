@@ -16,10 +16,7 @@
 
 package config
 
-import "github.com/corelayer/netscaleradc-nitro-go/pkg/nitro"
-
-type Connection struct {
-	Name     string         `yaml:"name"`
-	Type     string         `yaml:"type"`
-	Settings nitro.Settings `yaml:"settings"`
+type AcmeCsr struct {
+	CommonName              string   `yaml:"commonName"`
+	SubjectAlternativeNames []string `yaml:"subjectAlternativeNames"`
 }

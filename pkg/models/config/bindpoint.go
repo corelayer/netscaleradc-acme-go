@@ -16,8 +16,8 @@
 
 package config
 
-type BindPoint struct {
-	Name       string `yaml:"name"`
-	Sni        bool   `yaml:"sni"`
-	Connection string `yaml:"connection"`
+type Bindpoint struct {
+	Environment string `yaml:"environment"`
+	SslVserver  string `yaml:"sslVserver"`
+	SniEnabled  bool   `yaml:"sniEnabled"`
 }
