@@ -16,7 +16,8 @@
 
 package config
 
-type AcmeCsr struct {
-	CommonName              string   `yaml:"commonName"`
-	SubjectAlternativeNames []string `yaml:"subjectAlternativeNames"`
+type Certificate struct {
+	Name                      string                    `yaml:"name"`
+	CertificateSigningRequest CertificateSigningRequest `yaml:"certificateSigningRequest"`
+	Bindpoints                []Bindpoint               `yaml:"bindpoints"`
 }
