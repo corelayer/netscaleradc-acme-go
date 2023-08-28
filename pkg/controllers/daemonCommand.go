@@ -17,14 +17,24 @@
 package controllers
 
 import (
-	"fmt"
+	"log/slog"
+	"net"
+	"strconv"
+	"time"
+
+	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
-type ConfigureGlobalExample struct {
+type DaemonCommand struct {
+	Config config.Daemon
 }
 
-func (c ConfigureGlobalExample) Execute() error {
-	var err error
-	fmt.Println("Configure global settings example")
-	return err
+func (c DaemonCommand) Execute() error {
+	if _, err := net.Listen("tcp", c.Config.Address+":"+strconv.Itoa(c.Config.Port)); err != nil {
+		slog.Error("a daemon is already running on the same address")
+		return err
+	}
+	slog.Info("Running daemon")
+	time.Sleep(10 * time.Second)
+	return nil
 }

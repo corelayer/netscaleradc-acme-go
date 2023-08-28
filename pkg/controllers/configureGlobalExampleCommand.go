@@ -20,11 +20,11 @@ import (
 	"fmt"
 )
 
-type ConfigureGlobal struct {
+type ConfigureGlobalExampleCommand struct {
 }
 
-func (c ConfigureGlobal) Execute() error {
+func (c ConfigureGlobalExampleCommand) Execute() error {
 	var err error
-	fmt.Println("Configure global settings")
+	fmt.Println("Configure global settings example")
 	return err
 }

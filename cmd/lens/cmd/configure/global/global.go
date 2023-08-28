@@ -34,9 +34,9 @@ var Command = clapp.Command{
 			var c clapp.CommandController
 			example, err = cmd.Flags().GetBool("example")
 			if example {
-				c = controllers.ConfigureGlobalExample{}
+				c = controllers.ConfigureGlobalExampleCommand{}
 			} else {
-				c = controllers.ConfigureGlobal{}
+				c = controllers.ConfigureGlobalCommand{}
 			}
 
 			err = c.Execute()

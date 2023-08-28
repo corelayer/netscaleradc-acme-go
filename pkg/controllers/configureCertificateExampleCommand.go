@@ -20,11 +20,11 @@ import (
 	"fmt"
 )
 
-type Configure struct {
+type ConfigureCertificateExampleCommand struct {
 }
 
-func (c *Configure) Execute() error {
+func (c ConfigureCertificateExampleCommand) Execute() error {
 	var err error
-	fmt.Println("Configure settings")
+	fmt.Println("Configure certificate settings example")
 	return err
 }

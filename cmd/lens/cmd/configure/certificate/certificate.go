@@ -34,9 +34,9 @@ var Command = clapp.Command{
 			var c clapp.CommandController
 			example, err = cmd.Flags().GetBool("example")
 			if example {
-				c = controllers.ConfigureCertificateExample{}
+				c = controllers.ConfigureCertificateExampleCommand{}
 			} else {
-				c = controllers.ConfigureCertificate{}
+				c = controllers.ConfigureCertificateCommand{}
 			}
 
 			err = c.Execute()

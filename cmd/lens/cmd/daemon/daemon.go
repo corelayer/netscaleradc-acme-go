@@ -66,7 +66,7 @@ var Command = clapp.Command{
 				return err
 			}
 
-			c := controllers.Daemon{
+			c := controllers.DaemonCommand{
 				Config: config.Daemon{
 					Address: "127.0.0.1",
 					Port:    12345,

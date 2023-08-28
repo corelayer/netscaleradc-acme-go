@@ -32,7 +32,7 @@ var Command = clapp.Command{
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
-			c := controllers.Configure{}
+			c := controllers.ConfigureCommand{}
 			err = c.Execute()
 			return err
 		},
