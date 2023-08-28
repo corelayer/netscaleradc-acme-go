@@ -20,6 +20,5 @@ import "github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
 
 type Application struct {
 	Daemon        Daemon                `yaml:"daemon"`
-	ConfigBaseDir string                `yaml:"configBaseDir"`
 	Organizations registry.Organization `yaml:"organizations"`
 }
