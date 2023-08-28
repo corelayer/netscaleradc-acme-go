@@ -27,7 +27,7 @@ run:
 	go run cmd/lens/main.go
 
 run-daemon:
-	go run cmd/lens/main.go
+	go run cmd/lens/main.go daemon
 
 test:
 	bash scripts/test.sh

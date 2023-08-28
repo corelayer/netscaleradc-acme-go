@@ -18,15 +18,13 @@ package controllers
 
 import (
 	"fmt"
-	"net"
 )
 
-type Client struct{}
+type ConfigureGlobalExample struct {
+}
 
-func (c *Client) Execute() {
-	if _, err := net.Listen("tcp", "127.0.0.1:12345"); err == nil {
-		fmt.Println("No instance is running, cannot run in client mode")
-		return
-	}
-	fmt.Println("Proceeding in client mode")
+func (c ConfigureGlobalExample) Execute() error {
+	var err error
+	fmt.Println("Configure global settings example")
+	return err
 }

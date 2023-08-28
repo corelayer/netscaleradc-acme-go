@@ -14,18 +14,9 @@
  *    limitations under the License.
  */
 
-package cmd
+package config
 
-// var clientCmd = &cobra.Command{
-// 	Use:   "client",
-// 	Short: "Client mode",
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		// Do Stuff Here
-// 		c := controllers.Client{}
-// 		c.Execute()
-// 	},
-// }
-//
-// func init() {
-// 	rootCmd.AddCommand(clientCmd)
-// }
+type Daemon struct {
+	Address string `yaml:"address"`
+	Port    int    `yaml:"port"`
+}

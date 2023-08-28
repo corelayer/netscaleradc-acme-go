@@ -14,22 +14,12 @@
  *    limitations under the License.
  */
 
-package controllers
+package config
 
-import (
-	"fmt"
-	"net"
-	"time"
-)
+import "github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
 
-type Run struct {
-}
-
-func (c *Run) Execute() {
-	if _, err := net.Listen("tcp", "127.0.0.1:12345"); err != nil {
-		fmt.Println("An instance is already running")
-		return
-	}
-	fmt.Println("Proceeding with single run")
-	time.Sleep(10 * time.Second)
+type Application struct {
+	Daemon        Daemon                `yaml:"daemon"`
+	ConfigBaseDir string                `yaml:"configBaseDir"`
+	Organizations registry.Organization `yaml:"organizations"`
 }
