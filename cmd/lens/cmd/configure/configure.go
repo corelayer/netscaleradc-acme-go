@@ -22,7 +22,7 @@ import (
 
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/configure/certificate"
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/configure/global"
-	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
+	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers/command"
 )
 
 var Command = clapp.Command{
@@ -32,7 +32,7 @@ var Command = clapp.Command{
 		TraverseChildren: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
-			c := controllers.ConfigureCommand{}
+			c := command.Configure{}
 			err = c.Execute()
 			return err
 		},

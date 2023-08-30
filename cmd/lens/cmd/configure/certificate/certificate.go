@@ -20,7 +20,7 @@ import (
 	"github.com/corelayer/clapp/pkg/clapp"
 	"github.com/spf13/cobra"
 
-	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
+	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers/command"
 )
 
 var Command = clapp.Command{
@@ -34,9 +34,9 @@ var Command = clapp.Command{
 			var c clapp.CommandController
 			example, err = cmd.Flags().GetBool("example")
 			if example {
-				c = controllers.ConfigureCertificateExampleCommand{}
+				c = command.ConfigureCertificateExample{}
 			} else {
-				c = controllers.ConfigureCertificateCommand{}
+				c = command.ConfigureCertificate{}
 			}
 
 			err = c.Execute()

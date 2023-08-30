@@ -22,7 +22,7 @@ import (
 	"github.com/corelayer/clapp/pkg/clapp"
 	"github.com/spf13/cobra"
 
-	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
+	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers/command"
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
@@ -33,7 +33,7 @@ var Command = clapp.Command{
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 
-			// Get flag values from cmd
+			// Get flag values from command
 			var file string
 			var path string
 			var search []string
@@ -66,7 +66,7 @@ var Command = clapp.Command{
 				return err
 			}
 
-			c := controllers.DaemonCommand{
+			c := command.Daemon{
 				Config: config.Daemon{
 					Address: "127.0.0.1",
 					Port:    12345,

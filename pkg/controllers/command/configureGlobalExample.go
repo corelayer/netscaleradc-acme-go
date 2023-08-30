@@ -14,17 +14,17 @@
  *    limitations under the License.
  */
 
-package controllers
+package command
 
 import (
 	"fmt"
 )
 
-type ConfigureCommand struct {
+type ConfigureGlobalExample struct {
 }
 
-func (c *ConfigureCommand) Execute() error {
+func (c ConfigureGlobalExample) Execute() error {
 	var err error
-	fmt.Println("Configure settings")
+	fmt.Println("Configure global settings example")
 	return err
 }

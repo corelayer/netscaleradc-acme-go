@@ -14,16 +14,16 @@
  *    limitations under the License.
  */
 
-package controllers
+package command
 
 import (
 	"fmt"
 )
 
-type ConfigureCertificateExampleCommand struct {
+type ConfigureCertificateExample struct {
 }
 
-func (c ConfigureCertificateExampleCommand) Execute() error {
+func (c ConfigureCertificateExample) Execute() error {
 	var err error
 	fmt.Println("Configure certificate settings example")
 	return err

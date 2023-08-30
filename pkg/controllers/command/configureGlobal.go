@@ -14,27 +14,17 @@
  *    limitations under the License.
  */
 
-package controllers
+package command
 
 import (
-	"log/slog"
-	"net"
-	"strconv"
-	"time"
-
-	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
+	"fmt"
 )
 
-type DaemonCommand struct {
-	Config config.Daemon
+type ConfigureGlobal struct {
 }
 
-func (c DaemonCommand) Execute() error {
-	if _, err := net.Listen("tcp", c.Config.Address+":"+strconv.Itoa(c.Config.Port)); err != nil {
-		slog.Error("a daemon is already running on the same address")
-		return err
-	}
-	slog.Info("Running daemon")
-	time.Sleep(10 * time.Second)
-	return nil
+func (c ConfigureGlobal) Execute() error {
+	var err error
+	fmt.Println("Configure global settings")
+	return err
 }
