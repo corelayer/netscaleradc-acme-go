@@ -16,7 +16,7 @@
 
 package config
 
-type CertificateSigningRequest struct {
-	CommonName              string   `yaml:"commonName"`
-	SubjectAlternativeNames []string `yaml:"subjectAlternativeNames"`
+type sslVserver struct {
+	Name       string `json:"name" yaml:"name" mapstructure:"name"`
+	SniEnabled bool   `json:"sniEnabled" yaml:"sniEnabled" mapstructure:"sniEnabled"`
 }
