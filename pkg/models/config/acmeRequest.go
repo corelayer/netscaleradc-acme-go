@@ -16,10 +16,9 @@
 
 package config
 
-import "github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
-
-type Application struct {
-	ConfigPath    string                  `json:"configPath" yaml:"configPath" mapstructure:"configPath"`
-	Daemon        Daemon                  `json:"daemon" yaml:"daemon" mapstructure:"daemon"`
-	Organizations []registry.Organization `json:"organizations" yaml:"organizations" mapstructure:"organizations"`
+type AcmeRequest struct {
+	Organization            string   `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment             string   `json:"environment" yaml:"environment" mapstructure:"environment"`
+	CommonName              string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
+	SubjectAlternativeNames []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
 }

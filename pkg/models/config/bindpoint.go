@@ -17,7 +17,7 @@
 package config
 
 type Bindpoint struct {
-	Environment string `yaml:"environment"`
-	SslVserver  string `yaml:"sslVserver"`
-	SniEnabled  bool   `yaml:"sniEnabled"`
+	Organization string       `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment  string       `json:"environment" yaml:"environment" mapstructure:"environment"`
+	SslVservers  []sslVserver `json:"sslVservers" yaml:"sslVservers" mapstructure:"sslVservers"`
 }

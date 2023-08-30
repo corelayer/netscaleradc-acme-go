@@ -17,6 +17,6 @@
 package config
 
 type Daemon struct {
-	Address string `yaml:"address"`
-	Port    int    `yaml:"port"`
+	Address string `json:"address" yaml:"address" mapstructure:"address"`
+	Port    int    `json:"port" yaml:"port" mapstructure:"port"`
 }

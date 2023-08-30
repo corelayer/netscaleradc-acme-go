@@ -17,7 +17,7 @@
 package config
 
 type Certificate struct {
-	Name                      string                    `yaml:"name"`
-	CertificateSigningRequest CertificateSigningRequest `yaml:"certificateSigningRequest"`
-	Bindpoints                []Bindpoint               `yaml:"bindpoints"`
+	Name        string      `json:"name" yaml:"name" mapstructure:"name"`
+	AcmeRequest AcmeRequest `json:"acmeRequest" yaml:"acmeRequest" mapstructure:"acmeRequest"`
+	Bindpoints  []Bindpoint `json:"bindpoints" yaml:"bindpoints" mapstructure:"bindpoints"`
 }
