@@ -4,12 +4,13 @@ go 1.21
 
 require (
 	github.com/corelayer/clapp v0.0.0-20230828153946-81c70ad10a8b
-	github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230830154847-baa9b945a2a5
+	github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230830194032-177446053e2a
 	github.com/spf13/cobra v1.7.0
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/go-acme/lego v2.7.2+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

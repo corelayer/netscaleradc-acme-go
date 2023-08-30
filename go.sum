@@ -54,6 +54,8 @@ github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230829140920-ded4ba02fc75 h1
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230829140920-ded4ba02fc75/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230830154847-baa9b945a2a5 h1:FpqPOFLZIJa/Z4iiX6bK+lkku/S/vTsLbnKXyVcO5rA=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230830154847-baa9b945a2a5/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230830194032-177446053e2a h1:QI7KrI20P5kWGyzBrJjKOkcUqHv+BTbeWGPy9s3FsSE=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230830194032-177446053e2a/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -68,6 +70,8 @@ github.com/frankban/quicktest v1.14.4 h1:g2rn0vABPOOXmZUj+vbmUp0lPoXEMuhTpIluN0X
 github.com/frankban/quicktest v1.14.4/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
 github.com/fsnotify/fsnotify v1.6.0/go.mod h1:sl3t1tCWJFWoRz9R8WJCbQihKKwmorjAbSClcnxKAGw=
+github.com/go-acme/lego v2.7.2+incompatible h1:ThhpPBgf6oa9X/vRd0kEmWOsX7+vmYdckmGZSb+FEp0=
+github.com/go-acme/lego v2.7.2+incompatible/go.mod h1:yzMNe9CasVUhkquNvti5nAtPmG94USbYxYrZfTkIn0M=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=

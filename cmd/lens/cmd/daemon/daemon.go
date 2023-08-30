@@ -57,8 +57,8 @@ var Command = clapp.Command{
 			}
 
 			// Setup application configuration
-			appConfig := clapp.NewConfiguration(file, path, search)
-			viper := appConfig.GetViper()
+			clappConfig := clapp.NewConfiguration(file, path, search)
+			viper := clappConfig.GetViper()
 
 			err = viper.ReadInConfig()
 			if err != nil {
@@ -66,11 +66,15 @@ var Command = clapp.Command{
 				return err
 			}
 
+			var appConfig config.Application
+			err = viper.Unmarshal(&appConfig)
+			if err != nil {
+				slog.Error("could not unmarshal configuration", "error", err)
+				return err
+			}
+
 			c := command.Daemon{
-				Config: config.Daemon{
-					Address: "127.0.0.1",
-					Port:    12345,
-				},
+				Config: appConfig,
 			}
 			err = c.Execute()
 			return err
