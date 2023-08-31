@@ -22,3 +22,10 @@ type AcmeRequest struct {
 	CommonName              string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
 	SubjectAlternativeNames []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
 }
+
+func (r *AcmeRequest) GetDomains() []string {
+	var output []string
+	output = append(output, r.CommonName)
+	output = append(output, r.SubjectAlternativeNames...)
+	return output
+}

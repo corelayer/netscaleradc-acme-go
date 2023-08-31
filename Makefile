@@ -17,6 +17,9 @@
 build:
 	bash scripts/build.sh
 
+build-darwin:
+	bash scripts/build-darwin.sh
+
 clean:
 	bash scripts/clean.sh
 

@@ -16,10 +16,29 @@
 
 package config
 
-import "github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
+import (
+	"fmt"
+
+	"github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
+)
 
 type Application struct {
+	User          AcmeUser                `json:"user" yaml:"user" mapstructure:"user"`
 	ConfigPath    string                  `json:"configPath" yaml:"configPath" mapstructure:"configPath"`
 	Daemon        Daemon                  `json:"daemon" yaml:"daemon" mapstructure:"daemon"`
 	Organizations []registry.Organization `json:"organizations" yaml:"organizations" mapstructure:"organizations"`
+}
+
+func (a *Application) GetEnvironment(organization string, environment string) (registry.Environment, error) {
+	for _, org := range a.Organizations {
+		if organization == org.Name {
+			for _, env := range org.Environments {
+				if environment == env.Name {
+					return env, nil
+				}
+			}
+			break
+		}
+	}
+	return registry.Environment{}, fmt.Errorf("could not find environment %s for organization %s", environment, organization)
 }
