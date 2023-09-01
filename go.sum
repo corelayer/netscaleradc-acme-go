@@ -58,6 +58,16 @@ github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230831130952-5ba3e83e0a53 h1
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230831130952-5ba3e83e0a53/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901134735-61fcca422a2d h1:dOjf0b6SfHYt12YiD2wrMpILNKVM1IWiQacTU+qXcOg=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901134735-61fcca422a2d/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901141555-77bd39bdac3d h1:RBvUffIyUibFpq6JP3aXb3rdX8FvkXDNYtv+bi/FqqA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901141555-77bd39bdac3d/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901142221-72062e5147e5 h1:kChFMcSo6ZtimEXg1+lkDKWlyPeM2L9HP08v8zdf0kU=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901142221-72062e5147e5/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901145127-ad4f4c538633 h1:i2ZDZLPZi6njFkZLumUM4wfxpp1Ddk2gaIdTeCEV/Kw=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901145127-ad4f4c538633/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901151120-39f6d9f45dbc h1:lDqf8CrX/dISs8vTrGhlzxBmXOLRAnwnlJP/XpYbbmU=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901151120-39f6d9f45dbc/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901153218-df3485c2d2da h1:8D1rLFFa/n6J7kxNE4G/yJFDf1T0U5glDh+Jce7Ix/w=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230901153218-df3485c2d2da/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
