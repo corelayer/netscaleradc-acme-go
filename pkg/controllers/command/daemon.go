@@ -17,13 +17,16 @@
 package command
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log/slog"
 	"net"
 	"os"
 	"strconv"
-	"sync"
 
+	"github.com/corelayer/netscaleradc-nitro-go/pkg/nitro"
+	"github.com/corelayer/netscaleradc-nitro-go/pkg/nitro/resource/controllers"
 	"github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
 	"github.com/go-acme/lego/certcrypto"
 	"github.com/go-acme/lego/certificate"
@@ -38,7 +41,8 @@ import (
 )
 
 type Daemon struct {
-	Config config.Application
+	Config    config.Application
+	Timestamp string
 }
 
 func (c Daemon) Execute() error {
@@ -63,29 +67,70 @@ func (c Daemon) Execute() error {
 		return err
 	}
 
-	wg := sync.WaitGroup{}
 	for key, currentConfig := range configs {
-		wg.Add(1)
-		go func(k string, conf *viper.Viper) {
-			var uConfig config.Certificate
-			err = conf.Unmarshal(&uConfig)
-			if err != nil {
-				slog.Debug("could not unmarshal config", "config", k)
-				// return fmt.Errorf("could not unmarshal config for %s with message %w", k, err)
-			}
-			slog.Info("certificate config loaded for processing", "name", uConfig.Name)
-			err = c.launchLego(uConfig)
-			if err != nil {
-				slog.Debug("failed to process acme request", "name", uConfig.Name, "error", err)
-				// return fmt.Errorf("failed to process acme request for %s with message %w", uConfig.Name, err)
-			}
-		}(key, currentConfig)
+		var uConfig config.Certificate
+		err = currentConfig.Unmarshal(&uConfig)
+		if err != nil {
+			slog.Debug("could not unmarshal config", "config", key)
+			// return fmt.Errorf("could not unmarshal config for %s with message %w", k, err)
+		}
+		slog.Info("certificate config loaded for processing", "name", uConfig.Name)
+		var certificates *certificate.Resource
+		certificates, err = c.launchLego(uConfig)
+		if err != nil {
+			slog.Debug("failed to process acme request", "name", uConfig.Name, "error", err)
+			// return fmt.Errorf("failed to process acme request for %s with message %w", uConfig.Name, err)
+		}
+
+		err = c.updateNetScaler(uConfig, certificates)
+
 	}
-	wg.Wait()
 	return nil
 }
 
-func (c Daemon) launchLego(config config.Certificate) error {
+func (c Daemon) updateNetScaler(config config.Certificate, certificates *certificate.Resource) error {
+	var (
+		err error
+	)
+	var environments []registry.Environment
+	for _, b := range config.Bindpoints {
+		var env registry.Environment
+		env, err = c.Config.GetEnvironment(b.Organization, b.Environment)
+		if err != nil {
+			return fmt.Errorf("could not get environment %s for organization %s with message %w", b.Environment, b.Organization, err)
+		}
+
+		environments = append(environments, env)
+	}
+
+	for _, e := range environments {
+		var client *nitro.Client
+		client, err = e.GetPrimaryNitroClient()
+		if err != nil {
+			return fmt.Errorf("could not get nitro client for environment %s with message %w", e.Name, err)
+		}
+		fc := controllers.NewSystemFileController(client)
+		certFilename := config.Name + "_" + c.Timestamp + ".cer"
+		pkeyFilename := config.Name + "_" + c.Timestamp + ".key"
+		location := "/nsconfig/ssl/CERTS/LENS/" + config.Name + "/"
+		slog.Debug("uploading certificate public key to environment", "environment", e.Name)
+		_, err = fc.Add(certFilename, location, certificates.Certificate)
+		if err != nil {
+			return fmt.Errorf("could not upload certificate public key to environment %s with message %w", e.Name, err)
+		}
+		slog.Debug("uploading certificate private key to environment", "environment", e.Name)
+
+		_, err = fc.Add(pkeyFilename, location, certificates.PrivateKey)
+		if err != nil {
+			return fmt.Errorf("could not upload certificate private key to environment %s with message %w", e.Name, err)
+		}
+
+	}
+
+	return nil
+}
+
+func (c Daemon) launchLego(config config.Certificate) (*certificate.Resource, error) {
 	var (
 		err    error
 		user   *models.User
@@ -94,7 +139,7 @@ func (c Daemon) launchLego(config config.Certificate) error {
 	user, err = models.NewUser(c.Config.User.Email)
 	if err != nil {
 		slog.Debug("could not create user", "email", c.Config.User.Email, "config", config.Name)
-		return fmt.Errorf("could not create user %s for config %s with message %w", c.Config.User.Email, config.Name, err)
+		return nil, fmt.Errorf("could not create user %s for config %s with message %w", c.Config.User.Email, config.Name, err)
 	}
 
 	legoConfig := lego.NewConfig(user)
@@ -110,13 +155,13 @@ func (c Daemon) launchLego(config config.Certificate) error {
 	environment, err = c.Config.GetEnvironment(config.AcmeRequest.Organization, config.AcmeRequest.Environment)
 	if err != nil {
 		slog.Debug("could not find organization environment for acme request", "organization", config.AcmeRequest.Organization, "environment", config.AcmeRequest.Environment)
-		return fmt.Errorf("could not find environment %s for organization %s for acme request with message %w", config.AcmeRequest.Environment, config.AcmeRequest.Organization, err)
+		return nil, fmt.Errorf("could not find environment %s for organization %s for acme request with message %w", config.AcmeRequest.Environment, config.AcmeRequest.Organization, err)
 	}
 
 	var provider challenge.Provider
-	provider, err = netscaleradc.NewGlobalHttpProvider(environment, 10)
+	provider, err = netscaleradc.NewGlobalHttpProvider(environment, 10, c.Timestamp)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = client.Challenge.SetHTTP01Provider(provider)
 
@@ -125,7 +170,7 @@ func (c Daemon) launchLego(config config.Certificate) error {
 	reg, err = client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
 	if err != nil {
 		slog.Error("could not register user", "error", err)
-		return fmt.Errorf("could not register user %s for acme request with message %w", c.Config.User.Email, err)
+		return nil, fmt.Errorf("could not register user %s for acme request with message %w", c.Config.User.Email, err)
 	}
 	user.Registration = reg
 
@@ -138,11 +183,20 @@ func (c Daemon) launchLego(config config.Certificate) error {
 	certificates, err = client.Certificate.Obtain(request)
 	if err != nil {
 		slog.Error("could not obtain certificate", "error", err)
-		return fmt.Errorf("could not obtain certificate with message %w", err)
+		return nil, fmt.Errorf("could not obtain certificate with message %w", err)
 	}
 
-	fmt.Println(certificates.Certificate)
-	return nil
+	block, _ := pem.Decode(certificates.Certificate)
+	if block == nil {
+		panic("failed to parse PEM block containing the public key")
+	}
+	pub, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		panic("failed to parse DER encoded public key: " + err.Error())
+	}
+	slog.Debug("certificate information", "cn", pub.Subject.CommonName, "SAN", pub.DNSNames)
+
+	return certificates, nil
 }
 
 func (c Daemon) getVipers(files []string) (map[string]*viper.Viper, error) {

@@ -18,6 +18,7 @@ package daemon
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/corelayer/clapp/pkg/clapp"
 	"github.com/spf13/cobra"
@@ -74,7 +75,8 @@ var Command = clapp.Command{
 			}
 
 			c := command.Daemon{
-				Config: appConfig,
+				Config:    appConfig,
+				Timestamp: time.Now().Format("20060102150405"),
 			}
 			err = c.Execute()
 			return err

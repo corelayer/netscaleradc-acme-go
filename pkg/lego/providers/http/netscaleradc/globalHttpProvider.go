@@ -42,9 +42,10 @@ type GlobalHttpProvider struct {
 }
 
 // NewGlobalHttpProvider returns a HTTPProvider instance with a configured list of hosts
-func NewGlobalHttpProvider(environment registry.Environment, maxRetries int) (*GlobalHttpProvider, error) {
+func NewGlobalHttpProvider(environment registry.Environment, maxRetries int, timestamp string) (*GlobalHttpProvider, error) {
 	c := &GlobalHttpProvider{
 		maxRetries: maxRetries,
+		timestamp:  timestamp,
 	}
 
 	return c, c.initialize(environment)
@@ -235,7 +236,9 @@ func (p *GlobalHttpProvider) initialize(e registry.Environment) error {
 	p.rspController = controllers.NewResponderPolicyController(client)
 	p.rspbController = controllers.NewResponderGlobalResponderPolicyBindingController(client)
 
-	p.timestamp = time.Now().Format("20060102150405")
+	if p.timestamp == "" {
+		p.timestamp = time.Now().Format("20060102150405")
+	}
 	p.rspbBindtype = "REQ_OVERRIDE"
 	p.rsaPrefix = "RSA_LENS_"
 	p.rspPrefix = "RSP_LENS_"
