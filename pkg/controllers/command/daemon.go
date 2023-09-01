@@ -19,6 +19,7 @@ package command
 import (
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -84,6 +85,9 @@ func (c Daemon) Execute() error {
 		}
 
 		err = c.updateNetScaler(uConfig, certificates)
+		if err != nil {
+			slog.Error("aborting acme request", "domain", uConfig.Name)
+		}
 
 	}
 	return nil
@@ -93,11 +97,17 @@ func (c Daemon) updateNetScaler(certConfig config.Certificate, acmeCert *certifi
 	var (
 		err error
 	)
+
+	if acmeCert == nil {
+		slog.Error("no certificate available for upload")
+		return errors.New("no certificate available for upload")
+	}
 	var environments []registry.Environment
 	for _, b := range certConfig.Bindpoints {
 		var env registry.Environment
 		env, err = c.Config.GetEnvironment(b.Organization, b.Environment)
 		if err != nil {
+			slog.Error("could not get environment for organization")
 			return fmt.Errorf("could not get environment %s for organization %s with message %w", b.Environment, b.Organization, err)
 		}
 
@@ -108,6 +118,7 @@ func (c Daemon) updateNetScaler(certConfig config.Certificate, acmeCert *certifi
 		var client *nitro.Client
 		client, err = e.GetPrimaryNitroClient()
 		if err != nil {
+			slog.Error("could not get nitro client for environment")
 			return fmt.Errorf("could not get nitro client for environment %s with message %w", e.Name, err)
 		}
 		fc := controllers.NewSystemFileController(client)
