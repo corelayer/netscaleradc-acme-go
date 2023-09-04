@@ -139,18 +139,20 @@ func (c Daemon) updateNetScaler(certConfig config.Certificate, acmeCert *certifi
 		certKeyName := "LENS_" + certConfig.Name
 		certc := controllers.NewSslCertKeyController(client)
 		// Check if certificate exists
-		var certKey *nitro.Response[nitroConfig.SslCertKey]
-		if certKey, err = certc.Get(certKeyName, nil); err != nil {
-			if certKey.Message != "Certificate does not exist" {
+		// var certKey *nitro.Response[nitroConfig.SslCertKey]
+		var uErr error
+		if _, err = certc.Get(certKeyName, nil); err != nil {
+			uErr = errors.Unwrap(err)
+			fmt.Printf("####\r\nERROR: %s\r\nUNWRAP: %s\r\n####\r\rn", err, uErr)
+			if !errors.Is(uErr, NSERR_SSL_NOCERT) {
 				slog.Error("could not verify if certificate exists in environment", "environment", e.Name, "error", err)
 				return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", e.Name, err)
-			}
-		}
-		if certKey.Message == "Certificate does not exist" {
-			slog.Info("creating ssl certkey in environment", "environment", e.Name)
-			if _, err = certc.Add(certKeyName, location+certFilename, location+pkeyFilename); err != nil {
-				slog.Error("could not add certificate to environment", "environment", e.Name, "error", err)
-				return fmt.Errorf("could not add certificate to environment %s with message %w", e.Name, err)
+			} else {
+				slog.Info("creating ssl certkey in environment", "environment", e.Name)
+				if _, err = certc.Add(certKeyName, location+certFilename, location+pkeyFilename); err != nil {
+					slog.Error("could not add certificate to environment", "environment", e.Name, "error", err)
+					return fmt.Errorf("could not add certificate to environment %s with message %w", e.Name, err)
+				}
 			}
 		} else {
 			slog.Info("updating ssl certkey in environment", "environment", e.Name)
@@ -169,12 +171,15 @@ func (c Daemon) updateNetScaler(certConfig config.Certificate, acmeCert *certifi
 			}
 			if len(bindings.Data) == 0 {
 				for _, bindTo := range b.SslVservers {
+					// TODO ADD LOGGING FOR EACH SSL VSERVER
 					if _, err = certc.Bind(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
 						slog.Error("could not bind certificate to vserver", "environment", e.Name, "certkey", certKeyName, "error", err)
 						// return fmt.Errorf("could not bind certificate %s to vserver in environment %s with message %w", certKeyName, e.Name, err)
 					}
 				}
 			} else {
+				// TODO UPDATE FLOW --> check if vserver name in SslVservers exists before trying to bind
+				slog.Debug("found existing bindings for certificate", "environment", e.Name, "certkey", certKeyName, "count", len(bindings.Data))
 				for _, bindTo := range b.SslVservers {
 					for _, boundTo := range bindings.Data {
 						if bindTo.Name == boundTo.ServerName {
@@ -193,6 +198,8 @@ func (c Daemon) updateNetScaler(certConfig config.Certificate, acmeCert *certifi
 	}
 	return nil
 }
+
+var NSERR_SSL_NOCERT = nitro.Error{}.WithCode(1540).WithMessage("Certificate does not exist ")
 
 func (c Daemon) launchLego(config config.Certificate) (*certificate.Resource, error) {
 	var (

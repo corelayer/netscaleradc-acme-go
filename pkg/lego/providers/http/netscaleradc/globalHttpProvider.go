@@ -87,7 +87,7 @@ func (p *GlobalHttpProvider) Present(domain string, token string, keyAuth string
 		return fmt.Errorf("ns acme request: could not bind global responder policy %s for %s: %w", rspPolicyName, domain, err)
 	}
 
-	slog.Debug("ns acme request completed", "type", "global http", "domain", domain)
+	slog.Debug("ns acme request: completed", "type", "global http", "domain", domain)
 	return nil
 }
 

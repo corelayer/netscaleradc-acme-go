@@ -17,10 +17,11 @@
 package config
 
 type AcmeRequest struct {
-	Organization            string   `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Environment             string   `json:"environment" yaml:"environment" mapstructure:"environment"`
-	CommonName              string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
-	SubjectAlternativeNames []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
+	Organization            string        `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment             string        `json:"environment" yaml:"environment" mapstructure:"environment"`
+	ChallengeType           AcmeChallenge `json:"type" yaml:"type" mapstructure:"type"`
+	CommonName              string        `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
+	SubjectAlternativeNames []string      `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
 }
 
 func (r *AcmeRequest) GetDomains() []string {
