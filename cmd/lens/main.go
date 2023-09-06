@@ -17,7 +17,6 @@
 package main
 
 import (
-	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -56,8 +55,9 @@ func run() error {
 	app := clapp.NewApplication("lens", "Let's Encrypt for NetScaler ADC", "", "")
 	app.Command.PersistentFlags().StringVarP(&configFileFlag, "file", "f", "config.yaml", "config file name")
 	app.Command.PersistentFlags().StringVarP(&configPathFlag, "path", "p", "", "config file path, do not use with -s")
-	app.Command.PersistentFlags().StringSliceVarP(&configSearchPathFlag, "search", "s", configSearchPaths, "config file search paths, do not use with -p")
 	app.Command.PersistentFlags().StringVarP(&logLevelFlag, "loglevel", "l", "", "log level")
+	app.Command.PersistentFlags().StringSliceVarP(&configSearchPathFlag, "search", "s", configSearchPaths, "config file search paths, do not use with -p")
+
 	app.Command.MarkFlagsMutuallyExclusive("path", "search")
 
 	if err = app.Command.MarkPersistentFlagDirname("path"); err != nil {
@@ -72,20 +72,6 @@ func run() error {
 		configure.Command,
 		request.Command,
 	})
-
-	var level slog.Leveler
-	switch logLevelFlag {
-	case "info":
-		level = slog.LevelInfo
-	case "debug":
-		level = slog.LevelDebug
-	default:
-		level = slog.LevelInfo
-	}
-
-	// logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level}))
-	slog.SetDefault(logger)
 
 	return app.Run()
 }

@@ -17,7 +17,9 @@
 package request
 
 import (
+	"fmt"
 	"log/slog"
+	"os"
 
 	"github.com/corelayer/clapp/pkg/clapp"
 	"github.com/spf13/cobra"
@@ -69,6 +71,31 @@ var Command = clapp.Command{
 				slog.Error("could not find flag", "flag", "all")
 				return err
 			}
+
+			var logLevelFlag string
+			logLevelFlag, err = cmd.Flags().GetString("loglevel")
+			if err != nil {
+				slog.Error("could not find flag", "flag", "all")
+				return err
+			}
+
+			// TODO UPDATE LOGLEVEL HANDLING
+			var level slog.Leveler
+			fmt.Println("LOGLEVELFLAG", logLevelFlag)
+			switch logLevelFlag {
+			case "info":
+				level = slog.LevelInfo
+			case "debug":
+				fmt.Println("SETTING LOG LEVEL TO DEBUG")
+				level = slog.LevelDebug
+			default:
+				fmt.Println("DEFAULT SETTINGS")
+				level = slog.LevelInfo
+			}
+
+			// logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+			logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level}))
+			slog.SetDefault(logger)
 
 			// Setup application configuration
 			clappConfig := clapp.NewConfiguration(file, path, search)
