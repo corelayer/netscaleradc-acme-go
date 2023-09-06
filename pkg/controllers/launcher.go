@@ -41,7 +41,7 @@ import (
 )
 
 type Launcher struct {
-	loader        ConfigLoader
+	loader        Loader
 	organizations []registry.Organization
 	user          config.AcmeUser
 	timestamp     string
@@ -50,7 +50,7 @@ type Launcher struct {
 func NewLauncher(organizations []registry.Organization, path string, user config.AcmeUser) *Launcher {
 	return &Launcher{
 		organizations: organizations,
-		loader:        NewConfigLoader(path),
+		loader:        NewLoader(path),
 		user:          user,
 		timestamp:     time.Now().Format("20060102150405"),
 	}

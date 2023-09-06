@@ -26,18 +26,18 @@ import (
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
-type ConfigLoader struct {
+type Loader struct {
 	basePath string
 }
 
-func NewConfigLoader(path string) ConfigLoader {
-	return ConfigLoader{
+func NewLoader(path string) Loader {
+	return Loader{
 		basePath: path,
 	}
 
 }
 
-func (c ConfigLoader) GetAll() (map[string]config.Certificate, error) {
+func (l Loader) GetAll() (map[string]config.Certificate, error) {
 	var (
 		err    error
 		vipers map[string]*viper.Viper
@@ -45,7 +45,7 @@ func (c ConfigLoader) GetAll() (map[string]config.Certificate, error) {
 	)
 
 	slog.Debug("loading configurations")
-	vipers, err = c.loadVipers()
+	vipers, err = l.loadVipers()
 	if err != nil {
 		slog.Debug("could not get configurations", "error", err)
 		return nil, err
@@ -54,7 +54,7 @@ func (c ConfigLoader) GetAll() (map[string]config.Certificate, error) {
 	output = make(map[string]config.Certificate, len(vipers))
 	for k, v := range vipers {
 		var cert config.Certificate
-		cert, err = c.loadCertificateConfig(v)
+		cert, err = l.loadCertificateConfig(v)
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +63,7 @@ func (c ConfigLoader) GetAll() (map[string]config.Certificate, error) {
 	return output, nil
 }
 
-func (c ConfigLoader) Get(name string) (config.Certificate, error) {
+func (l Loader) Get(name string) (config.Certificate, error) {
 	var (
 		err    error
 		vipers map[string]*viper.Viper
@@ -72,7 +72,7 @@ func (c ConfigLoader) Get(name string) (config.Certificate, error) {
 	)
 
 	slog.Debug("loading configurations")
-	vipers, err = c.loadVipers()
+	vipers, err = l.loadVipers()
 	if err != nil {
 		return config.Certificate{}, err
 	}
@@ -82,19 +82,19 @@ func (c ConfigLoader) Get(name string) (config.Certificate, error) {
 		return config.Certificate{}, fmt.Errorf("could not get configuration %s", name)
 	}
 
-	output, err = c.loadCertificateConfig(vipers[name])
+	output, err = l.loadCertificateConfig(vipers[name])
 	if err != nil {
 		return config.Certificate{}, err
 	}
 	return output, nil
 }
 
-func (c ConfigLoader) getConfigFiles() ([]string, error) {
+func (l Loader) getConfigFiles() ([]string, error) {
 	var (
 		err   error
 		files []string
 	)
-	files, err = c.walkConfigPath(c.basePath)
+	files, err = l.walkConfigPath(l.basePath)
 	if err != nil {
 		slog.Debug("could get config files", "error", err)
 		return nil, err
@@ -102,7 +102,7 @@ func (c ConfigLoader) getConfigFiles() ([]string, error) {
 	return files, nil
 }
 
-func (c ConfigLoader) loadCertificateConfig(v *viper.Viper) (config.Certificate, error) {
+func (l Loader) loadCertificateConfig(v *viper.Viper) (config.Certificate, error) {
 	var (
 		err    error
 		output config.Certificate
@@ -115,7 +115,7 @@ func (c ConfigLoader) loadCertificateConfig(v *viper.Viper) (config.Certificate,
 	return output, nil
 }
 
-func (c ConfigLoader) loadViper(path string) (*viper.Viper, error) {
+func (l Loader) loadViper(path string) (*viper.Viper, error) {
 	var (
 		err    error
 		output *viper.Viper
@@ -131,14 +131,14 @@ func (c ConfigLoader) loadViper(path string) (*viper.Viper, error) {
 	return output, nil
 }
 
-func (c ConfigLoader) loadVipers() (map[string]*viper.Viper, error) {
+func (l Loader) loadVipers() (map[string]*viper.Viper, error) {
 	var (
 		err    error
 		files  []string
 		vipers map[string]*viper.Viper
 	)
 
-	files, err = c.getConfigFiles()
+	files, err = l.getConfigFiles()
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func (c ConfigLoader) loadVipers() (map[string]*viper.Viper, error) {
 	vipers = make(map[string]*viper.Viper, len(files))
 	for _, file := range files {
 		var currentViper *viper.Viper
-		currentViper, err = c.loadViper(file)
+		currentViper, err = l.loadViper(file)
 		if err != nil {
 			return nil, err
 		}
@@ -161,7 +161,7 @@ func (c ConfigLoader) loadVipers() (map[string]*viper.Viper, error) {
 	return vipers, nil
 }
 
-func (c ConfigLoader) walkConfigPath(path string) ([]string, error) {
+func (l Loader) walkConfigPath(path string) ([]string, error) {
 	var (
 		err    error
 		files  []os.DirEntry
@@ -179,7 +179,7 @@ func (c ConfigLoader) walkConfigPath(path string) ([]string, error) {
 			output = append(output, path+"/"+file.Name())
 		} else {
 			var subDirFiles []string
-			subDirFiles, err = c.walkConfigPath(path + "/" + file.Name())
+			subDirFiles, err = l.walkConfigPath(path + "/" + file.Name())
 			if err != nil {
 				return output, err
 			}
