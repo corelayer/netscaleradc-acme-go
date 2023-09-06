@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package daemon
+package request
 
 import (
 	"log/slog"
@@ -28,8 +28,8 @@ import (
 
 var Command = clapp.Command{
 	Cobra: &cobra.Command{
-		Use:   "daemon",
-		Short: "Daemon mode",
+		Use:   "request",
+		Short: "request mode",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 
@@ -37,6 +37,8 @@ var Command = clapp.Command{
 			var file string
 			var path string
 			var search []string
+			var name string
+			var all bool
 
 			file, err = cmd.Flags().GetString("file")
 			if err != nil {
@@ -53,6 +55,18 @@ var Command = clapp.Command{
 			search, err = cmd.Flags().GetStringSlice("search")
 			if err != nil {
 				slog.Error("could not find flag", "flag", "search")
+				return err
+			}
+
+			name, err = cmd.Flags().GetString("name")
+			if err != nil {
+				slog.Error("could not find flag", "flag", "name")
+				return err
+			}
+
+			all, err = cmd.Flags().GetBool("all")
+			if err != nil {
+				slog.Error("could not find flag", "flag", "all")
 				return err
 			}
 
@@ -73,8 +87,10 @@ var Command = clapp.Command{
 				return err
 			}
 
-			c := command.Daemon{
-				Config: appConfig,
+			c := command.Request{
+				Config:     appConfig,
+				Request:    name,
+				RequestAll: all,
 			}
 			err = c.Execute()
 			return err
@@ -82,4 +98,12 @@ var Command = clapp.Command{
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	},
+}
+
+func init() {
+	Command.Cobra.Flags().StringP("name", "n", "", "request name")
+	Command.Cobra.Flags().BoolP("all", "a", true, "request all")
+
+	Command.Cobra.MarkFlagsMutuallyExclusive("name", "all")
+
 }

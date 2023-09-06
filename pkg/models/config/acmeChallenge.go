@@ -17,14 +17,17 @@
 package config
 
 const (
-	ACME_CHALLENGE_TYPE_HTTP = "http"
-	ACME_CHALLENGE_TYPE_DNS  = "dns"
-	ACME_CHALLENGE_TYPE_TLS  = "tls"
+	ACME_CHALLENGE_TYPE_HTTP           = "http"
+	ACME_CHALLENGE_TYPE_DNS            = "dns"
+	ACME_CHALLENGE_TYPE_NETSCALER_HTTP = "netscaler-http"
+	ACME_CHALLENGE_TYPE_NETSCALER_ADNS = "netscaler-adns"
 )
 
 var (
-	AcmeChallengeHttp = AcmeChallenge{"http"}
-	AcmeChallengeDns  = AcmeChallenge{"dns"}
+	AcmeChallengeHttp          = AcmeChallenge{"http"}
+	AcmeChallengeDns           = AcmeChallenge{"dns"}
+	AcmeChallengeNetScalerHttp = AcmeChallenge{"netscaler-http"}
+	AcmeChallengeNetScalerADns = AcmeChallenge{"netscaler-adns"}
 )
 
 type AcmeChallenge struct {

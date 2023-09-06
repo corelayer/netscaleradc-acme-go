@@ -14,15 +14,29 @@
  *    limitations under the License.
  */
 
-package config
+package command
 
 import (
-	"github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
+	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
+	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
-type Application struct {
-	User          AcmeUser                `json:"user" yaml:"user" mapstructure:"user"`
-	ConfigPath    string                  `json:"configPath" yaml:"configPath" mapstructure:"configPath"`
-	Daemon        Daemon                  `json:"daemon" yaml:"daemon" mapstructure:"daemon"`
-	Organizations []registry.Organization `json:"organizations" yaml:"organizations" mapstructure:"organizations"`
+type Request struct {
+	Config     config.Application
+	Request    string
+	RequestAll bool
+}
+
+func (c Request) Execute() error {
+	if c.Request != "" {
+		launcher := controllers.NewLauncher(c.Config.Organizations, c.Config.ConfigPath, c.Config.User)
+		return launcher.Request(c.Request)
+	}
+	if c.RequestAll {
+		launcher := controllers.NewLauncher(c.Config.Organizations, c.Config.ConfigPath, c.Config.User)
+		return launcher.RequestAll()
+
+	}
+
+	return nil
 }

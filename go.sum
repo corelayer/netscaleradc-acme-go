@@ -50,14 +50,10 @@ github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnht
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/corelayer/clapp v0.0.0-20230828153946-81c70ad10a8b h1:zfyjQM2a/DA0DAtKD7YAXwhvxFvsdyEtzWp4Zuq6tfw=
 github.com/corelayer/clapp v0.0.0-20230828153946-81c70ad10a8b/go.mod h1:G/bE/uo5IqaJoBXJKpikiqIF6S1M7lmtA5XeI3LpkJY=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904160028-f2cd811c6d9c h1:Uy50eofWUchosUgs6k4PKqp7/EZARnZfBim2NMjuoQo=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904160028-f2cd811c6d9c/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904195157-02b2045b6db9 h1:w9rmowSZuCZkVpst1x7yXtZgPPH27Fp2p1OvdA0VRNE=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904195157-02b2045b6db9/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904195531-6a5bab6814c2 h1:xvLbefQmdh372Vvg/qhZCk9fHbPw0Pc25nZcWbsPaBk=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904195531-6a5bab6814c2/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904203441-f897e78e3357 h1:9i6WlLYiebZrbl9TSLWHqmyCf0Kjg6YsB4cl/U8xjfc=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230904203441-f897e78e3357/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230906132848-beb390bfe852 h1:xXXd5SdL/iNUYWaoWZ99Pa21mpLZ5baRXol9GiaoUsk=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230906132848-beb390bfe852/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

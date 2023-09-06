@@ -25,6 +25,7 @@ import (
 
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/configure"
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/daemon"
+	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/request"
 )
 
 // Banner generated at https://patorjk.com/software/taag/#p=display&v=3&f=Ivrit&t=NetScaler%20ADC%20-%20ACME
@@ -38,10 +39,6 @@ var configSearchPaths = []string{
 }
 
 func main() {
-	// logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	slog.SetDefault(logger)
-
 	if err := run(); err != nil {
 		os.Exit(1)
 	}
@@ -54,11 +51,13 @@ func run() error {
 	var configFileFlag string
 	var configPathFlag string
 	var configSearchPathFlag []string
+	var logLevelFlag string
+
 	app := clapp.NewApplication("lens", "Let's Encrypt for NetScaler ADC", "", "")
 	app.Command.PersistentFlags().StringVarP(&configFileFlag, "file", "f", "config.yaml", "config file name")
 	app.Command.PersistentFlags().StringVarP(&configPathFlag, "path", "p", "", "config file path, do not use with -s")
 	app.Command.PersistentFlags().StringSliceVarP(&configSearchPathFlag, "search", "s", configSearchPaths, "config file search paths, do not use with -p")
-
+	app.Command.PersistentFlags().StringVarP(&logLevelFlag, "loglevel", "l", "", "log level")
 	app.Command.MarkFlagsMutuallyExclusive("path", "search")
 
 	if err = app.Command.MarkPersistentFlagDirname("path"); err != nil {
@@ -71,6 +70,22 @@ func run() error {
 	app.RegisterCommands([]clapp.Commander{
 		daemon.Command,
 		configure.Command,
+		request.Command,
 	})
+
+	var level slog.Leveler
+	switch logLevelFlag {
+	case "info":
+		level = slog.LevelInfo
+	case "debug":
+		level = slog.LevelDebug
+	default:
+		level = slog.LevelInfo
+	}
+
+	// logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level}))
+	slog.SetDefault(logger)
+
 	return app.Run()
 }
