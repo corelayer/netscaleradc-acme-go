@@ -17,6 +17,8 @@
 package command
 
 import (
+	"fmt"
+
 	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
@@ -28,15 +30,21 @@ type Request struct {
 }
 
 func (c Request) Execute() error {
+	var (
+		err      error
+		launcher *controllers.Launcher
+	)
+	launcher, err = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users)
+	if err != nil {
+		return err
+	}
+
 	if c.Request != "" {
-		launcher := controllers.NewLauncher(c.Config.Organizations, c.Config.ConfigPath, c.Config.User)
 		return launcher.Request(c.Request)
 	}
 	if c.RequestAll {
-		launcher := controllers.NewLauncher(c.Config.Organizations, c.Config.ConfigPath, c.Config.User)
 		return launcher.RequestAll()
 
 	}
-
-	return nil
+	return fmt.Errorf("no valid execution target")
 }

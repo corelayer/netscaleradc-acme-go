@@ -75,7 +75,7 @@ var Command = clapp.Command{
 			var logLevelFlag string
 			logLevelFlag, err = cmd.Flags().GetString("loglevel")
 			if err != nil {
-				slog.Error("could not find flag", "flag", "all")
+				slog.Error("could not find flag", "loglevel", "all")
 				return err
 			}
 

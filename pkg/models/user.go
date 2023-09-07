@@ -23,7 +23,7 @@ import (
 	"crypto/rand"
 	"fmt"
 
-	"github.com/go-acme/lego/registration"
+	"github.com/go-acme/lego/v4/registration"
 )
 
 type User struct {
@@ -32,13 +32,13 @@ type User struct {
 	key          crypto.PrivateKey
 }
 
-func (u *User) GetEmail() string {
+func (u User) GetEmail() string {
 	return u.Email
 }
-func (u *User) GetRegistration() *registration.Resource {
+func (u User) GetRegistration() *registration.Resource {
 	return u.Registration
 }
-func (u *User) GetPrivateKey() crypto.PrivateKey {
+func (u User) GetPrivateKey() crypto.PrivateKey {
 	return u.key
 }
 

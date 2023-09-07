@@ -17,5 +17,6 @@
 package config
 
 type AcmeUser struct {
+	Name  string `json:"name" yaml:"name" mapstructure:"name"`
 	Email string `json:"email" yaml:"email" mapstructure:"email"`
 }

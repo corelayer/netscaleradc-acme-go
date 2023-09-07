@@ -21,8 +21,8 @@ import (
 )
 
 type Application struct {
-	User          AcmeUser                `json:"user" yaml:"user" mapstructure:"user"`
 	ConfigPath    string                  `json:"configPath" yaml:"configPath" mapstructure:"configPath"`
 	Daemon        Daemon                  `json:"daemon" yaml:"daemon" mapstructure:"daemon"`
 	Organizations []registry.Organization `json:"organizations" yaml:"organizations" mapstructure:"organizations"`
+	Users         []AcmeUser              `json:"users", yaml:"users" mapstructure:"users"`
 }
