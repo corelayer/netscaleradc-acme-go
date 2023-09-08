@@ -31,7 +31,8 @@ import (
 var Command = clapp.Command{
 	Cobra: &cobra.Command{
 		Use:   "request",
-		Short: "request mode",
+		Short: "Request mode",
+		Long:  "Let's Encrypt for NetScaler ADC - Request Mode",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 

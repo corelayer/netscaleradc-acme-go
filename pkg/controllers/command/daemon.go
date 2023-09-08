@@ -21,7 +21,6 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
@@ -31,8 +30,8 @@ type Daemon struct {
 
 func (c Daemon) Execute() error {
 	var (
-		err      error
-		launcher *controllers.Launcher
+		err error
+		// launcher *controllers.Launcher
 	)
 	if _, err = net.Listen("tcp", c.Config.Daemon.Address+":"+strconv.Itoa(c.Config.Daemon.Port)); err != nil {
 		slog.Error("a daemon is already running on the same address")
@@ -40,6 +39,7 @@ func (c Daemon) Execute() error {
 	}
 	slog.Info("Running daemon", "address", c.Config.Daemon.Address, "port", c.Config.Daemon.Port)
 
-	launcher, err = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users)
-	return launcher.RequestAll()
+	// launcher, err = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users)
+	// return launcher.RequestAll()
+	return nil
 }

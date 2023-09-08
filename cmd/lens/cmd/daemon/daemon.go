@@ -30,6 +30,7 @@ var Command = clapp.Command{
 	Cobra: &cobra.Command{
 		Use:   "daemon",
 		Short: "Daemon mode",
+		Long:  "Let's Encrypt for NetScaler ADC - Daemon Mode",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 
