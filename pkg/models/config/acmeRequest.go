@@ -17,6 +17,10 @@
 package config
 
 import (
+	"bufio"
+	"log/slog"
+	"os"
+
 	"github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
 	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/challenge"
@@ -42,27 +46,56 @@ const (
 
 const (
 	ACME_SERVICE_LETSENCRYPT_PRODUCTION     = "LE_PRODUCTION"
-	ACME_SERVICE_LETSENCRYPT_PRODUCTION_URL = "https://acme-staging-v02.api.letsencrypt.org/directory"
+	ACME_SERVICE_LETSENCRYPT_PRODUCTION_URL = "https://acme-v02.api.letsencrypt.org/directory"
 	ACME_SERVICE_LETSENCRYPT_STAGING        = "LE_STAGING"
 	ACME_SERVICE_LETSENCRYPT_STAGING_URL    = "https://acme-staging-v02.api.letsencrypt.org/directory"
 )
 
 type AcmeRequest struct {
-	Organization            string   `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Environment             string   `json:"environment" yaml:"environment" mapstructure:"environment"`
-	Username                string   `json:"username" yaml:"username" mapstructure:"username"`
-	ChallengeService        string   `json:"service" yaml:"service" mapstructure:"service"`
-	ChallengeType           string   `json:"type" yaml:"type" mapstructure:"type"`
-	KeyType                 string   `json:"keytype" yaml:"keyType" mapstructure:"keyType"`
-	CommonName              string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
-	SubjectAlternativeNames []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
+	Organization                string   `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment                 string   `json:"environment" yaml:"environment" mapstructure:"environment"`
+	Username                    string   `json:"username" yaml:"username" mapstructure:"username"`
+	ChallengeService            string   `json:"service" yaml:"service" mapstructure:"service"`
+	ChallengeType               string   `json:"type" yaml:"type" mapstructure:"type"`
+	KeyType                     string   `json:"keytype" yaml:"keyType" mapstructure:"keyType"`
+	CommonName                  string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
+	SubjectAlternativeNames     []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
+	SubjectAlternativeNamesFile string   `json:"subjectAlternativeNamesFile" yaml:"subjectAlternativeNamesFile" mapstructure:"subjectAlternativeNamesFile"`
 }
 
-func (r AcmeRequest) GetDomains() []string {
-	var output []string
+func (r AcmeRequest) GetDomains() ([]string, error) {
+	var (
+		err    error
+		output []string
+		f      *os.File
+	)
 	output = append(output, r.CommonName)
-	output = append(output, r.SubjectAlternativeNames...)
-	return output
+
+	if len(r.SubjectAlternativeNames) > 0 {
+		output = append(output, r.SubjectAlternativeNames...)
+	}
+
+	if r.SubjectAlternativeNamesFile != "" {
+		f, err = os.Open(r.SubjectAlternativeNamesFile)
+		defer func(f *os.File) {
+			err = f.Close()
+			if err != nil {
+				slog.Error("could not close file", "filename", r.SubjectAlternativeNamesFile, "errror", err)
+			}
+		}(f)
+
+		if err != nil {
+			slog.Error("could not read subject alternative names from file", "filename", r.SubjectAlternativeNamesFile, "error", err)
+		}
+
+		fs := bufio.NewScanner(f)
+		fs.Split(bufio.ScanLines)
+
+		for fs.Scan() {
+			output = append(output, fs.Text())
+		}
+	}
+	return output, nil
 }
 
 func (r AcmeRequest) GetServiceUrl() string {
