@@ -159,9 +159,10 @@ func (l Launcher) getUser(username string) (*models.User, error) {
 
 func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Resource, error) {
 	var (
-		err    error
-		user   *models.User
-		client *lego.Client
+		err     error
+		user    *models.User
+		client  *lego.Client
+		domains []string
 	)
 
 	user, err = l.getUser(cert.AcmeRequest.Username)
@@ -208,6 +209,13 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 		return nil, err
 	}
 
+	// Get domains for ACME request
+	if domains, err = cert.AcmeRequest.GetDomains(); err != nil {
+		slog.Error("invalid domain in request", "certificate", cert.Name, "error", err)
+
+		return nil, err
+	}
+
 	// New users will need to register
 	var reg *registration.Resource
 	reg, err = client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
@@ -218,8 +226,9 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	}
 	user.Registration = reg
 
+	// Execute ACME request
 	request := certificate.ObtainRequest{
-		Domains: cert.AcmeRequest.GetDomains(),
+		Domains: domains,
 		Bundle:  false,
 	}
 

@@ -173,8 +173,76 @@ users:
     email: <acme e-mail address>
 ```
 
-#### Example configuration
+#### Examples
+- [Standalone - using SNIP](#standalone---using-snip)
+- [Standalone - using NSIP](#standalone---using-nsip)
+- [High-Availability pair - using SNIP](#high-availability-pair---using-snip)
+- [High-Availability pair - using NSIP](#high-availability-pair---using-nsip)
+
+##### Standalone - using SNIP
+Global configuration:
+```yaml
+configPath: conf.d
+daemon:
+  address: 127.0.0.1
+  port: 12345
+organizations:
+  - name: corelayer
+    environments:
+      - name: development
+        type: standalone
+        snip:
+          name: vpx-dev-snip
+          address: 192.168.1.10
+        nodes:
+          - name: vpx-dev-001
+            address: 192.168.1.11
+        credentials:
+          username: nsroot
+          password: nsroot
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+users:
+  - name: corelayer_acme
+    email: fake@email.com
 ```
+
+##### Standalone - using NSIP
+Global configuration:
+```yaml
+configPath: conf.d
+daemon:
+  address: 127.0.0.1
+  port: 12345
+organizations:
+  - name: corelayer
+    environments:
+      - name: development
+        type: standalone
+        nodes:
+          - name: vpx-dev-001
+            address: 192.168.1.11
+        credentials:
+          username: nsroot
+          password: nsroot
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+users:
+  - name: corelayer_acme
+    email: fake@email.com
+```
+
+##### High-availability Pair - using SNIP
+Global configuration:
+```yaml
 configPath: conf.d
 daemon:
   address: 127.0.0.1
@@ -206,14 +274,45 @@ users:
     email: fake@email.com
 ```
 
-### Certificate configuration
+##### High-availability Pair - using NSIP
+Global configuration:
+```yaml
+configPath: conf.d
+daemon:
+  address: 127.0.0.1
+  port: 12345
+organizations:
+  - name: corelayer
+    environments:
+      - name: development
+        type: hapair
+        nodes:
+          - name: vpx-dev-001
+            address: 192.168.1.11
+          - name: vpx-dev-002
+            address: 192.168.1.12
+        credentials:
+          username: nsroot
+          password: nsroot
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+users:
+  - name: corelayer_acme
+    email: fake@email.com
 ```
+
+### Certificate configuration
+```yaml
 name: <name>
 acmeRequest:
   organization: <organization name>
   environment: <environment name>
   username: <acme username>
-  service: <acme service: LE_STAGING | LE_PRODUCTION | <custom address>>
+  service: LE_STAGING | LE_PRODUCTION | <custom address>
   type: <netscaler-http-global | netscaler-adns | http | <name of dns provider>
   keytype: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
   commonName: <common name>
@@ -239,8 +338,14 @@ We need to specify the organization and environment name to select which NetScal
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
 This is especially useful when having SAN-certificates or wildard certificates, so they can be bound appropriately on different NetScaler environments.
 
-#### Example
-```
+#### Examples
+- [Simple certificate](#simple-certificate)
+- [SAN certificate - using manual entries](#san-certificate---using-manual-entries)
+- [SAN certificate - using external file](#san-certificate---using-external-file)
+
+##### Simple certificate
+Certificate configuration:
+```yaml
 name: corelogic_dev
 acmeRequest:
   organization: corelayer
@@ -256,4 +361,54 @@ bindpoints:
     sslVservers:
       - name: CSV_DEV_SSL
         sniEnabled: true
+```
+
+##### SAN certificate - using manual entries
+Certificate configuration:
+```yaml
+name: corelogic_dev
+acmeRequest:
+  organization: corelayer
+  environment: development
+  username: corelayer_acme
+  service: LE_STAGING
+  type: netscaler-http-global
+  keytype: RSA4096
+  commonName: corelogic.dev.corelayer.eu
+  subjectAlternativeNames:
+    - demo.dev.corelayer.eu
+    - my.dev.corelayer.eu
+bindpoints:
+  - organization: corelayer
+    environment: development
+    sslVservers:
+      - name: CSV_DEV_SSL
+        sniEnabled: true
+```
+
+##### SAN certificate - using external file
+Certificate configuration:
+```yaml
+name: corelogic_dev
+acmeRequest:
+  organization: corelayer
+  environment: development
+  username: corelayer_acme
+  service: LE_STAGING
+  type: netscaler-http-global
+  keytype: RSA4096
+  commonName: corelogic.dev.corelayer.eu
+  subjectAlternativeNamesFile: corelogic_dev_san.txt
+bindpoints:
+  - organization: corelayer
+    environment: development
+    sslVservers:
+      - name: CSV_DEV_SSL
+        sniEnabled: true
+```
+
+Subject Alternative Names File (stored next to the certificate configuration file):
+```text
+demo.dev.corelayer.eu
+my.dev.corelayer.eu
 ```

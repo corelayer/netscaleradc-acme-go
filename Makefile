@@ -14,6 +14,8 @@
 # *    limitations under the License.
 # */
 
+archive:
+	bash scripts/archive.sh
 build:
 	bash scripts/build.sh
 
