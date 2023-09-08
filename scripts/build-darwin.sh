@@ -27,6 +27,7 @@ cd "$DIR" || exit
 echo "Cleaning up previous builds and packages"
 rm -rf output/bin/*
 rm -rf output/pkg/*
+rm -rf output/archives/*
 
 INPUT="cmd/lens/main.go"
 OUTBASE="output/bin"
