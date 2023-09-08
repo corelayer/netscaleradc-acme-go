@@ -17,7 +17,6 @@
 package request
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -82,15 +81,16 @@ var Command = clapp.Command{
 
 			// TODO UPDATE LOGLEVEL HANDLING
 			var level slog.Leveler
-			fmt.Println("LOGLEVELFLAG", logLevelFlag)
 			switch logLevelFlag {
+			case "error":
+				level = slog.LevelError
+			case "warn":
+				level = slog.LevelWarn
 			case "info":
 				level = slog.LevelInfo
 			case "debug":
-				fmt.Println("SETTING LOG LEVEL TO DEBUG")
 				level = slog.LevelDebug
 			default:
-				fmt.Println("DEFAULT SETTINGS")
 				level = slog.LevelInfo
 			}
 
