@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"sync"
 	"time"
 
@@ -159,9 +160,10 @@ func (l Launcher) getUser(username string) (*models.User, error) {
 
 func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Resource, error) {
 	var (
-		err    error
-		user   *models.User
-		client *lego.Client
+		err     error
+		user    *models.User
+		client  *lego.Client
+		domains []string
 	)
 
 	user, err = l.getUser(cert.AcmeRequest.Username)
@@ -208,6 +210,16 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 		return nil, err
 	}
 
+	// Get domains for ACME request
+	if domains, err = cert.AcmeRequest.GetDomains(); err != nil {
+		return nil, err
+	}
+
+	// Validate if domains can be resolved
+	if err = l.validateDomains(domains); err != nil {
+		return nil, fmt.Errorf("could not validate domains for request", "error", err)
+	}
+
 	// New users will need to register
 	var reg *registration.Resource
 	reg, err = client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
@@ -218,8 +230,9 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	}
 	user.Registration = reg
 
+	// Execute ACME request
 	request := certificate.ObtainRequest{
-		Domains: cert.AcmeRequest.GetDomains(),
+		Domains: domains,
 		Bundle:  false,
 	}
 
@@ -345,6 +358,17 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 					}
 				}
 			}
+		}
+	}
+	return nil
+}
+
+func (l Launcher) validateDomains(domains []string) error {
+	var err error
+	for _, domain := range domains {
+		if _, err = net.LookupHost(domain); err != nil {
+			slog.Error("invalid domain", "domain", domain, "error", err)
+			return err
 		}
 	}
 	return nil
