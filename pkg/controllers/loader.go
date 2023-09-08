@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/viper"
 
@@ -27,12 +28,14 @@ import (
 )
 
 type Loader struct {
-	basePath string
+	basePath   string
+	extensions []string
 }
 
 func NewLoader(path string) Loader {
 	return Loader{
-		basePath: path,
+		basePath:   path,
+		extensions: []string{".yaml", ".yml"},
 	}
 
 }
@@ -112,6 +115,9 @@ func (l Loader) loadCertificateConfig(v *viper.Viper) (config.Certificate, error
 		slog.Debug("could not unmarshal config", "config", v.GetString("name"))
 		return config.Certificate{}, err
 	}
+
+	output.AcmeRequest = output.AcmeRequest.SetPath(l.basePath)
+
 	return output, nil
 }
 
@@ -176,7 +182,9 @@ func (l Loader) walkConfigPath(path string) ([]string, error) {
 
 	for _, file := range files {
 		if !file.IsDir() {
-			output = append(output, path+"/"+file.Name())
+			if l.isValidConfigFile(file) {
+				output = append(output, path+"/"+file.Name())
+			}
 		} else {
 			var subDirFiles []string
 			subDirFiles, err = l.walkConfigPath(path + "/" + file.Name())
@@ -187,4 +195,14 @@ func (l Loader) walkConfigPath(path string) ([]string, error) {
 		}
 	}
 	return output, err
+}
+
+func (l Loader) isValidConfigFile(e os.DirEntry) bool {
+	ext := filepath.Ext(e.Name())
+	for _, v := range l.extensions {
+		if v == ext {
+			return true
+		}
+	}
+	return false
 }

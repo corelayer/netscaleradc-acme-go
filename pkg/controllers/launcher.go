@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"net"
 	"sync"
 	"time"
 
@@ -212,12 +211,9 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 
 	// Get domains for ACME request
 	if domains, err = cert.AcmeRequest.GetDomains(); err != nil {
-		return nil, err
-	}
+		slog.Error("invalid domain in request", "certificate", cert.Name, "error", err)
 
-	// Validate if domains can be resolved
-	if err = l.validateDomains(domains); err != nil {
-		return nil, fmt.Errorf("could not validate domains for request", "error", err)
+		return nil, err
 	}
 
 	// New users will need to register
@@ -358,17 +354,6 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 					}
 				}
 			}
-		}
-	}
-	return nil
-}
-
-func (l Launcher) validateDomains(domains []string) error {
-	var err error
-	for _, domain := range domains {
-		if _, err = net.LookupHost(domain); err != nil {
-			slog.Error("invalid domain", "domain", domain, "error", err)
-			return err
 		}
 	}
 	return nil

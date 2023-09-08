@@ -19,7 +19,9 @@ package config
 import (
 	"bufio"
 	"log/slog"
+	"net"
 	"os"
+	"path/filepath"
 
 	"github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
 	"github.com/go-acme/lego/v4/certcrypto"
@@ -61,13 +63,15 @@ type AcmeRequest struct {
 	CommonName                  string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
 	SubjectAlternativeNames     []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
 	SubjectAlternativeNamesFile string   `json:"subjectAlternativeNamesFile" yaml:"subjectAlternativeNamesFile" mapstructure:"subjectAlternativeNamesFile"`
+
+	basePath string
 }
 
 func (r AcmeRequest) GetDomains() ([]string, error) {
 	var (
-		err    error
-		output []string
-		f      *os.File
+		err     error
+		output  []string
+		domains []string
 	)
 	output = append(output, r.CommonName)
 
@@ -75,17 +79,48 @@ func (r AcmeRequest) GetDomains() ([]string, error) {
 		output = append(output, r.SubjectAlternativeNames...)
 	}
 
+	domains, err = r.GetDomainsFromFile()
+	if err != nil {
+		return output, err
+	}
+
+	output = append(output, domains...)
+	return output, r.validateDomains(output)
+}
+
+func (r AcmeRequest) GetDomainsFromFile() ([]string, error) {
+	var (
+		err      error
+		filename string
+		f        *os.File
+		output   []string
+	)
 	if r.SubjectAlternativeNamesFile != "" {
-		f, err = os.Open(r.SubjectAlternativeNamesFile)
+		_, err = os.Stat(r.SubjectAlternativeNamesFile)
+		if err == nil {
+			filename = r.SubjectAlternativeNamesFile
+		} else {
+			fullPath := filepath.Join(r.basePath, r.SubjectAlternativeNamesFile)
+			_, err = os.Stat(fullPath)
+			if err == nil {
+				filename = fullPath
+			} else {
+				slog.Error("could not read subject alternative names from file", "filename", fullPath, "error", err)
+				return output, err
+			}
+		}
+
+		f, err = os.Open(filename)
 		defer func(f *os.File) {
 			err = f.Close()
 			if err != nil {
-				slog.Error("could not close file", "filename", r.SubjectAlternativeNamesFile, "errror", err)
+				slog.Error("could not close file", "filename", filename, "error", err)
 			}
 		}(f)
 
 		if err != nil {
-			slog.Error("could not read subject alternative names from file", "filename", r.SubjectAlternativeNamesFile, "error", err)
+			slog.Error("could not read subject alternative names from file", "filename", filename, "error", err)
+			return output, err
 		}
 
 		fs := bufio.NewScanner(f)
@@ -137,4 +172,19 @@ func (r AcmeRequest) GetKeyType() certcrypto.KeyType {
 	default:
 		return certcrypto.RSA4096
 	}
+}
+
+func (r AcmeRequest) SetPath(path string) AcmeRequest {
+	r.basePath = path
+	return r
+}
+
+func (r AcmeRequest) validateDomains(domains []string) error {
+	var err error
+	for _, domain := range domains {
+		if _, err = net.LookupHost(domain); err != nil {
+			return err
+		}
+	}
+	return nil
 }
