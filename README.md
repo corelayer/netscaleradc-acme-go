@@ -11,6 +11,7 @@ We provide binaries for different operating systems and architectures:
 - Windows (amd64/arm64)
 - FreeBSD (amd64/arm64), versions > FreeBSD 11
 
+#### Native NetScaler ADC binary
 Lens was initially designed to be run on NetScaler appliances directly as well.</br>
 Since NetScaler is based on a **heavily modified** FreeBSD, this shouldn't pose any problems.
 
@@ -27,15 +28,32 @@ FreeBSD 11.4-NETSCALER-14.1 amd64 amd64
 Again, NetScaler is based on a **heavily modified** FreeBSD operating system, but base OS is still FreeBSD 11.4.
 As such, it is currently not possible to run the tool on a NetScaler directly.
 
-### NetScaler ADC
- - You will need internet access to connect to your ACME service of choice. By default we support both staging and production environments for Let's Encrypt.
+### Certificate Authorities
+
+By default we support both staging and production environments for Let's Encrypt.
 Lens is designed to work with other certificate authorities who provide access through the ACME protocol.
- </br>If you are a user of other ACME-protocol based services, please reach out so we can ensure maximum compatibility!
 
-- You wil need connectivity with either the NSIP or SNIP address for the environments to which you will connect.
+*If you are a user of other ACME-protocol based services, such as Sectigo, please reach out so we can ensure maximum compatibility!*
 
+### NetScaler ADC
+#### User permissions
 - You will need a user account with the following permissions:
-  - \<TBD>
+    - \<TBD>
+
+For easy configuration, we provide the necessary commands to create the command policy on NetScaler ADC in the section below.
+##### CLI Commands
+```text
+</TBD>
+```
+##### Terraform
+```terraform
+</TBD>
+```
+
+#### Running on NetScaler ADC natively
+If you run the binary natively on NetScaler ADC:
+- You will need internet access to connect to your ACME service of choice if you want to run natively on NetScaler ADC
+- You wil need connectivity with either the NSIP or SNIP address for the environments to which you will connect.
 
 ## Running Lens
 ```
