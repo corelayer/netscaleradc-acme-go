@@ -22,6 +22,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
 	"github.com/go-acme/lego/v4/certcrypto"
@@ -182,6 +183,11 @@ func (r AcmeRequest) SetPath(path string) AcmeRequest {
 func (r AcmeRequest) validateDomains(domains []string) error {
 	var err error
 	for _, domain := range domains {
+		// Skip wildcard domain validation
+		if strings.HasPrefix(domain, "*") {
+			continue
+		}
+
 		if _, err = net.LookupHost(domain); err != nil {
 			return err
 		}
