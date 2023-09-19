@@ -203,7 +203,9 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	case config.ACME_CHALLENGE_TYPE_DNS:
 		err = client.Challenge.SetDNS01Provider(provider)
 	default:
-		err = fmt.Errorf("invalid provider")
+		// err = fmt.Errorf("invalid provider")
+		// TODO Change logic
+		err = client.Challenge.SetDNS01Provider(provider)
 	}
 	if err != nil {
 		return nil, err
@@ -354,6 +356,12 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 					}
 				}
 			}
+		}
+		// TODO - SAVE CONFIG LOGIC
+		slog.Debug("saving config")
+		if err = client.SaveConfig(); err != nil {
+			slog.Error("error saving config", "environment", e.Name, "error", err)
+			return err
 		}
 	}
 	return nil
