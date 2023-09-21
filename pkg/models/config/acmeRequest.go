@@ -43,8 +43,11 @@ const (
 
 const (
 	// NetScaler specific challenge types are defined in package netscaleradc
-	ACME_CHALLENGE_TYPE_HTTP = "http"
-	ACME_CHALLENGE_TYPE_DNS  = "dns"
+	ACME_CHALLENGE_TYPE_HTTP     = "http-01"
+	ACME_CHALLENGE_TYPE_DNS      = "dns-01"
+	ACME_CHALLENGE_TYPE_TLS_ALPN = "tls-alpn-01"
+
+	ACME_CHALLENGE_PROVIDER_WEBSERVER = "webserver"
 )
 
 const (
@@ -55,12 +58,14 @@ const (
 )
 
 type AcmeRequest struct {
-	Organization                string   `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Environment                 string   `json:"environment" yaml:"environment" mapstructure:"environment"`
-	Username                    string   `json:"username" yaml:"username" mapstructure:"username"`
-	ChallengeService            string   `json:"service" yaml:"service" mapstructure:"service"`
-	ChallengeType               string   `json:"type" yaml:"type" mapstructure:"type"`
-	KeyType                     string   `json:"keytype" yaml:"keyType" mapstructure:"keyType"`
+	Organization string        `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment  string        `json:"environment" yaml:"environment" mapstructure:"environment"`
+	AcmeUser     string        `json:"acmeUser" yaml:"acmeUser" mapstructure:"acmeUser"`
+	Challenge    AcmeChallenge `json:"challenge" yaml:"challenge" mapstructure:"challenge"`
+	// ChallengeService            string        `json:"service" yaml:"service" mapstructure:"service"`
+	// ChallengeType               string        `json:"type" yaml:"type" mapstructure:"type"`
+	// ChallengeProvider           string        `json:"provider" yaml:"provider" mapstructure:"provider"`
+	KeyType                     string   `json:"keyType" yaml:"keyType" mapstructure:"keyType"`
 	CommonName                  string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
 	SubjectAlternativeNames     []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
 	SubjectAlternativeNamesFile string   `json:"subjectAlternativeNamesFile" yaml:"subjectAlternativeNamesFile" mapstructure:"subjectAlternativeNamesFile"`
@@ -135,26 +140,26 @@ func (r AcmeRequest) GetDomainsFromFile() ([]string, error) {
 }
 
 func (r AcmeRequest) GetServiceUrl() string {
-	switch r.ChallengeService {
+	switch r.Challenge.Service {
 	case ACME_SERVICE_LETSENCRYPT_PRODUCTION:
 		return ACME_SERVICE_LETSENCRYPT_PRODUCTION_URL
 	case ACME_SERVICE_LETSENCRYPT_STAGING:
 		return ACME_SERVICE_LETSENCRYPT_STAGING_URL
 	default:
-		return r.ChallengeService
+		return r.Challenge.Service
 	}
 }
 
 func (r AcmeRequest) GetChallengeProvider(environment registry.Environment, timestamp string) (challenge.Provider, error) {
-	switch r.ChallengeType {
-	case netscaleradc.ACME_CHALLENGE_TYPE_NETSCALER_HTTP_GLOBAL:
+	switch r.Challenge.Provider {
+	case netscaleradc.ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL:
 		return netscaleradc.NewGlobalHttpProvider(environment, 10, timestamp)
-	case netscaleradc.ACME_CHALLENGE_TYPE_NETSCALER_ADNS:
+	case netscaleradc.ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS:
 		return netscaleradc.NewADnsProvider(environment, 10)
-	case ACME_CHALLENGE_TYPE_HTTP:
+	case ACME_CHALLENGE_PROVIDER_WEBSERVER:
 		return http01.NewProviderServer("", "12346"), nil
 	default:
-		return dns.NewDNSChallengeProviderByName(r.ChallengeType)
+		return dns.NewDNSChallengeProviderByName(r.Challenge.Type)
 	}
 }
 

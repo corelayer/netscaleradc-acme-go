@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	ACME_CHALLENGE_TYPE_NETSCALER_ADNS = "netscaler-adns"
+	ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS = "netscaler-adns"
 )
 
 // ADnsProvider manages ACME requests for NetScaler ADC Authoritative DNS service
@@ -54,59 +54,59 @@ func NewADnsProvider(environment registry.Environment, maxRetries int) (*ADnsPro
 // Parameter keyAuth is the value which must be returned for a successful challenge
 func (p *ADnsProvider) Present(domain string, token string, keyAuth string) error {
 	var err error
-	slog.Info("ns acme request", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+	slog.Info("ns acme request", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 
 	// Get challenge information to
 	info := dns01.GetChallengeInfo(domain, keyAuth)
 
 	// Add DNS record to ADNS zone on NetScaler ADC
-	slog.Debug("ns acme request: create dns record", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+	slog.Debug("ns acme request: create dns record", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 	if _, err = p.dnsTxtRec.Add(info.FQDN, []string{info.Value}, 30); err != nil {
-		slog.Error("ns acme request: could not create dns record", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain, "error", err)
+		slog.Error("ns acme request: could not create dns record", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain, "error", err)
 		return fmt.Errorf("ns acme request: could not create dns record %s: %w", domain, err)
 	}
 
-	slog.Debug("ns acme request: completed", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+	slog.Debug("ns acme request: completed", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 	return nil
 }
 
 func (p *ADnsProvider) CleanUp(domain string, token string, keyAuth string) error {
 	var err error
-	slog.Info("ns acme cleanup", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+	slog.Info("ns acme cleanup", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 
 	// Get DNS01 Challenge info
 	info := dns01.GetChallengeInfo(domain, keyAuth)
 
-	slog.Debug("ns acme cleanup: remove dns record", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+	slog.Debug("ns acme cleanup: remove dns record", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 	var res *nitro.Response[config.DnsTxtRec]
 	// Limit data transfer by limiting returned fields
 	if res, err = p.dnsTxtRec.Get(info.FQDN, []string{"string", "recordid"}); err != nil {
-		slog.Error("ns acme cleanup: could not get recordid", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain, "error", err)
+		slog.Error("ns acme cleanup: could not get recordid", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain, "error", err)
 		return fmt.Errorf("ns acme cleanup: could not get recordid %s: %w", domain, err)
 
 	}
 
 	for _, rec := range res.Data {
 		// Loop over array of returned records
-		slog.Debug("ns acme cleanup: processing record", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain, "recordid", rec.RecordId)
+		slog.Debug("ns acme cleanup: processing record", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain, "recordid", rec.RecordId)
 		for _, data := range rec.Data {
 			// Only remove record if keyAuth matches the current acme request
-			slog.Debug("ns acme cleanup: processing record data", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+			slog.Debug("ns acme cleanup: processing record data", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 			if data != info.Value {
-				slog.Debug("ns acme cleanup: skipping record", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+				slog.Debug("ns acme cleanup: skipping record", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 				continue
 			}
 
-			slog.Debug("ns acme cleanup: found record to remove", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+			slog.Debug("ns acme cleanup: found record to remove", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 			if _, err = p.dnsTxtRec.Delete(info.FQDN, rec.RecordId); err != nil {
-				slog.Error("ns acme cleanup: could not remove dns record", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain, "error", err)
+				slog.Error("ns acme cleanup: could not remove dns record", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain, "error", err)
 				return fmt.Errorf("ns acme cleanup: could not remove dns record %s: %w", domain, err)
 			}
-			slog.Debug("ns acme cleanup: removed dns record", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+			slog.Debug("ns acme cleanup: removed dns record", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 		}
 	}
 
-	slog.Debug("ns acme cleanup: completed", "type", ACME_CHALLENGE_TYPE_NETSCALER_ADNS, "domain", domain)
+	slog.Debug("ns acme cleanup: completed", "type", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "domain", domain)
 	return nil
 }
 

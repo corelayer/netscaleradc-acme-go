@@ -46,7 +46,7 @@ For easy configuration, we provide the necessary commands to create the command 
 </TBD>
 ```
 ##### Terraform
-```terraform
+```text
 </TBD>
 ```
 
@@ -163,15 +163,12 @@ The individual certificate configuration files can be stored elsewhere on the sy
 ### Global configuration
 ```
 configPath: <path to the individua certificate configuration files>
-daemon:
-  address: <ip address>
-  port: <port>>
 organizations:
   - name: <organization name>
     environments:
       - name: <environment name>
         type: <standalone | hapair | cluster>
-        snip:
+        management:
           name: <name for the SNIP address>
           address: <SNIP address>
         nodes:
@@ -186,7 +183,7 @@ organizations:
           validateServerCertificate: <true | false>
           logTlsSecrets: <true | false>
           autoLogin: <true | false>
-users:
+acmeUsers:
   - name: <acme username>
     email: <acme e-mail address>
 ```
@@ -201,15 +198,12 @@ users:
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
       - name: development
         type: standalone
-        snip:
+        management:
           name: vpx-dev-snip
           address: 192.168.1.10
         nodes:
@@ -224,7 +218,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -233,9 +227,6 @@ users:
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
@@ -253,7 +244,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -262,15 +253,12 @@ users:
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
       - name: development
         type: hapair
-        snip:
+        management:
           name: vpx-dev-snip
           address: 192.168.1.10
         nodes:
@@ -287,7 +275,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -296,9 +284,6 @@ users:
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
@@ -318,7 +303,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -329,10 +314,12 @@ name: <name>
 acmeRequest:
   organization: <organization name>
   environment: <environment name>
-  username: <acme username>
-  service: LE_STAGING | LE_PRODUCTION | <custom address>
-  type: <netscaler-http-global | netscaler-adns | http | <name of dns provider>
-  keytype: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
+  acmeUser: <acme username>
+  challenge:
+    service: LE_STAGING | LE_PRODUCTION | <custom url>
+    type: <http-01 | dns-01>
+    provider: <netscaler-http-global | netscaler-adns | webserver | <name of dns provider>
+  keyType: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
   commonName: <common name>
   subjectAlternativeNames:
     - <subjectAlternativeName>
@@ -368,10 +355,12 @@ name: corelogic_dev
 acmeRequest:
   organization: corelayer
   environment: development
-  username: corelayer_acme
-  service: LE_STAGING
-  type: netscaler-http-global
-  keytype: RSA4096
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
   commonName: corelogic.dev.corelayer.eu
 bindpoints:
   - organization: corelayer
@@ -388,10 +377,12 @@ name: corelogic_dev
 acmeRequest:
   organization: corelayer
   environment: development
-  username: corelayer_acme
-  service: LE_STAGING
-  type: netscaler-http-global
-  keytype: RSA4096
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
   commonName: corelogic.dev.corelayer.eu
   subjectAlternativeNames:
     - demo.dev.corelayer.eu
@@ -411,10 +402,12 @@ name: corelogic_dev
 acmeRequest:
   organization: corelayer
   environment: development
-  username: corelayer_acme
-  service: LE_STAGING
-  type: netscaler-http-global
-  keytype: RSA4096
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
   commonName: corelogic.dev.corelayer.eu
   subjectAlternativeNamesFile: corelogic_dev_san.txt
 bindpoints:

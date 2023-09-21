@@ -34,7 +34,6 @@ import (
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
 
-	"github.com/corelayer/netscaleradc-acme-go/pkg/lego/providers/netscaleradc"
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models"
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
@@ -165,10 +164,10 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 		domains []string
 	)
 
-	user, err = l.getUser(cert.AcmeRequest.Username)
+	user, err = l.getUser(cert.AcmeRequest.AcmeUser)
 	if err != nil {
-		slog.Debug("could not find user", "username", cert.AcmeRequest.Username, "config", cert.Name)
-		return nil, fmt.Errorf("could not find user %s for config %s with message %w", cert.AcmeRequest.Username, cert.Name, err)
+		slog.Debug("could not find user", "username", cert.AcmeRequest.AcmeUser, "config", cert.Name)
+		return nil, fmt.Errorf("could not find user %s for config %s with message %w", cert.AcmeRequest.AcmeUser, cert.Name, err)
 	}
 
 	legoConfig := lego.NewConfig(user)
@@ -193,19 +192,15 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 		return nil, err
 	}
 
-	switch cert.AcmeRequest.ChallengeType {
-	case netscaleradc.ACME_CHALLENGE_TYPE_NETSCALER_HTTP_GLOBAL:
-		err = client.Challenge.SetHTTP01Provider(provider)
-	case netscaleradc.ACME_CHALLENGE_TYPE_NETSCALER_ADNS:
-		err = client.Challenge.SetDNS01Provider(provider)
+	switch cert.AcmeRequest.Challenge.Type {
 	case config.ACME_CHALLENGE_TYPE_HTTP:
 		err = client.Challenge.SetHTTP01Provider(provider)
 	case config.ACME_CHALLENGE_TYPE_DNS:
 		err = client.Challenge.SetDNS01Provider(provider)
+	case config.ACME_CHALLENGE_TYPE_TLS_ALPN:
+		err = client.Challenge.SetTLSALPN01Provider(provider)
 	default:
-		// err = fmt.Errorf("invalid provider")
-		// TODO Change logic
-		err = client.Challenge.SetDNS01Provider(provider)
+		err = fmt.Errorf("invalid challenge type")
 	}
 	if err != nil {
 		return nil, err
@@ -224,7 +219,7 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	// reg, err = client.Registration.QueryRegistration()
 	if err != nil {
 		slog.Error("could not register user", "error", err)
-		return nil, fmt.Errorf("could not register user %s for acme request with message %w", cert.AcmeRequest.Username, err)
+		return nil, fmt.Errorf("could not register user %s for acme request with message %w", cert.AcmeRequest.AcmeUser, err)
 	}
 	user.Registration = reg
 
@@ -325,7 +320,7 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 		}
 
 		for _, b := range certConfig.Bindpoints {
-			var bindings *nitro.Response[nitroConfig.SslCertKey_SslVserver_Binding]
+			var bindings *nitro.Response[nitroConfig.SslCertKeySslVserverBinding]
 			if bindings, err = certc.GetSslVserverBinding(certKeyName, nil); err != nil {
 				slog.Error("could not verify if certificate exists in environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
 				return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", e.Name, err)

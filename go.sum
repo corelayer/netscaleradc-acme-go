@@ -161,12 +161,8 @@ github.com/cncf/xds/go v0.0.0-20210922020428-25de7278fc84/go.mod h1:eXthEFrGJvWH
 github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/corelayer/clapp v0.0.0-20230828153946-81c70ad10a8b h1:zfyjQM2a/DA0DAtKD7YAXwhvxFvsdyEtzWp4Zuq6tfw=
 github.com/corelayer/clapp v0.0.0-20230828153946-81c70ad10a8b/go.mod h1:G/bE/uo5IqaJoBXJKpikiqIF6S1M7lmtA5XeI3LpkJY=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230907151621-479198dea519 h1:kbZE6tMEESPJCFRbpXj8TpIqbmhj4qULVp7cdbBUlHE=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230907151621-479198dea519/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230919150201-cbd4d0ca0e35 h1:qMnzaAHykWnThYYeZNcNjKniZxLbbNtQCSbtwzTY6MY=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230919150201-cbd4d0ca0e35/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230919151201-4be1c38c87a7 h1:ZHbuxYgMvlD9kXbO7+FLx7wo1hXS68TMSKnUiJ1yetE=
-github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230919151201-4be1c38c87a7/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230921150559-1597fd49af45 h1:y7I8fNNPYQy8cqXXei7rVDkClY0pxNxN84XaPuFfzIg=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230921150559-1597fd49af45/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
