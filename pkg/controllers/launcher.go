@@ -68,30 +68,37 @@ func NewLauncher(path string, organizations []registry.Organization, users []con
 
 func (l Launcher) Request(name string) error {
 	var (
-		err          error
-		req          config.Certificate
-		certificates *certificate.Resource
+		err error
+		req config.Certificate
+		// certificates *certificate.Resource
 	)
 	req, err = l.loader.Get(name)
 	if err != nil {
 		return err
 	}
 
-	certificates, err = l.executeAcmeRequest(req)
-	if err != nil {
-		return err
-	}
+	// TODO UPDATE GOROUTINE CALLS TO HANDLE ERRORS
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go l.processRequest(req, &wg)
+	wg.Wait()
+	return nil
 
-	slog.Info(certificates.Domain)
-	return l.updateNetScaler(req, certificates)
+	// certificates, err = l.executeAcmeRequest(req)
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// slog.Info(certificates.Domain)
+	// return l.updateNetScaler(req, certificates)
 	// return nil
 }
 
 func (l Launcher) RequestAll() error {
 	var (
-		err          error
-		req          map[string]config.Certificate
-		certificates *certificate.Resource
+		err error
+		req map[string]config.Certificate
+		// certificates *certificate.Resource
 	)
 	req, err = l.loader.GetAll()
 	if err != nil {
@@ -102,26 +109,29 @@ func (l Launcher) RequestAll() error {
 	var wg sync.WaitGroup
 	for _, v := range req {
 		wg.Add(1)
-		go func(c config.Certificate, group *sync.WaitGroup) {
-			slog.Debug("Requesting certficate", "domain", c.Name)
-			defer group.Done()
-			var gorErr error
-			certificates, gorErr = l.executeAcmeRequest(c)
-			if gorErr != nil {
-				slog.Error(gorErr.Error())
-				return
-			}
-
-			slog.Info(certificates.Domain)
-			gorErr = l.updateNetScaler(c, certificates)
-			if gorErr != nil {
-				slog.Error(gorErr.Error())
-				return
-			}
-		}(v, &wg)
+		go l.processRequest(v, &wg)
 	}
 	wg.Wait()
 	return nil
+}
+
+func (l Launcher) processRequest(c config.Certificate, wg *sync.WaitGroup) {
+	var certificates *certificate.Resource
+	slog.Debug("Requesting certficate", "domain", c.Name)
+	defer wg.Done()
+	var gorErr error
+	certificates, gorErr = l.executeAcmeRequest(c)
+	if gorErr != nil {
+		slog.Error(gorErr.Error())
+		return
+	}
+
+	slog.Info(certificates.Domain)
+	gorErr = l.updateNetScaler(c, certificates)
+	if gorErr != nil {
+		slog.Error(gorErr.Error())
+		return
+	}
 }
 
 func (l Launcher) initialize(users []config.AcmeUser) (map[string]*models.User, error) {
@@ -261,6 +271,7 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 		slog.Error("no certificate available for upload")
 		return errors.New("no certificate available for upload")
 	}
+
 	var environments []registry.Environment
 	for _, b := range certConfig.Installation {
 		var env registry.Environment
