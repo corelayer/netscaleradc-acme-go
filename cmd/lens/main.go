@@ -25,8 +25,11 @@ import (
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/request"
 )
 
-// Banner generated at https://patorjk.com/software/taag/#p=display&v=3&f=Ivrit&t=NetScaler%20ADC%20-%20ACME
-var banner = "\n\n  _   _      _   ____            _                _    ____   ____              _    ____ __  __ _____ \n | \\ | | ___| |_/ ___|  ___ __ _| | ___ _ __     / \\  |  _ \\ / ___|            / \\  / ___|  \\/  | ____|\n |  \\| |/ _ \\ __\\___ \\ / __/ _` | |/ _ \\ '__|   / _ \\ | | | | |      _____    / _ \\| |   | |\\/| |  _|  \n | |\\  |  __/ |_ ___) | (_| (_| | |  __/ |     / ___ \\| |_| | |___  |_____|  / ___ \\ |___| |  | | |___ \n |_| \\_|\\___|\\__|____/ \\___\\__,_|_|\\___|_|    /_/   \\_\\____/ \\____|         /_/   \\_\\____|_|  |_|_____|\n                                                                                                       "
+const (
+	LENS_TITLE  = "Let's Encrypt for NetScaler ADC"
+	LENS_BANNER = "    __    _______   _______\n   / /   / ____/ | / / ___/\n  / /   / __/ /  |/ /\\__ \\\n / /___/ /___/ /|  /___/ /\n/_____/_____/_/ |_//____/"
+	// https://patorjk.com/software/taag/#p=display&v=2&f=Slant&t=LENS
+)
 
 var configSearchPaths = []string{
 	filepath.Join("/", "etc", "corelayer", "lens"),
@@ -53,7 +56,7 @@ func run() error {
 	var configSearchPathFlag []string
 	var logLevelFlag string
 
-	app := clapp.NewApplication("lens", "Let's Encrypt for NetScaler ADC", "", "")
+	app := clapp.NewApplication("lens", LENS_TITLE, LENS_BANNER+"\n\n"+LENS_TITLE, "")
 	app.Command.PersistentFlags().StringVarP(&configFileFlag, "file", "f", "config.yaml", "config file name")
 	app.Command.PersistentFlags().StringVarP(&configPathFlag, "path", "p", "", "config file path, do not use with -s")
 	app.Command.PersistentFlags().StringVarP(&logLevelFlag, "loglevel", "l", "", "log level")

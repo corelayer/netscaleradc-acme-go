@@ -64,7 +64,6 @@ Usage:
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
-  daemon      Daemon mode
   help        Help about any command
   request     Request mode
 
@@ -83,6 +82,9 @@ By default, lens will be looking for a global configuration file in the followin
 - /nsconfig/ssl/LENS
 - $HOME/.lens
 - $PWD (the current working directory)
+- %APPDATA%
+- %LOCALAPPDATA%
+- %PROGRAMDATA%
 
 Global Flags:
 - -f / --file: allows you to specify a custom global configuration file
@@ -120,28 +122,6 @@ Flags:
 *Both flags are mutually exclusive!*
 
 The global flags are still applicable and can be used accordingly.
-
-
-### Daemon mode
-```
-Let's Encrypt for NetScaler ADC - Daemon Mode
-
-Usage:
-  lens daemon [flags]
-
-Flags:
-  -h, --help   help for daemon
-
-Global Flags:
-  -f, --file string       config file name (default "config.yaml")
-  -l, --loglevel string   log level
-  -p, --path string       config file path, do not use with -s
-  -s, --search strings    config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD])
-```
-
-**Not implemented**
-
-The goal is to run lens as a daemon which verifies the actual state of the current certificates and request new ones accordingly.
 
 ### Configuration mode
 
@@ -193,6 +173,7 @@ acmeUsers:
 - [Standalone - using NSIP](#standalone---using-nsip)
 - [High-Availability pair - using SNIP](#high-availability-pair---using-snip)
 - [High-Availability pair - using NSIP](#high-availability-pair---using-nsip)
+- [Multiple environments](#multiple-environments)
 
 ##### Standalone - using SNIP
 Global configuration:
@@ -308,10 +289,57 @@ acmeUsers:
     email: fake@email.com
 ```
 
+##### Multiple environments
+Global configuration:
+```yaml
+configPath: conf.d
+organizations:
+  - name: corelayer
+    environments:
+      - name: development
+        type: hapair
+        nodes:
+          - name: vpx-dev-001
+            address: 192.168.1.11
+          - name: vpx-dev-002
+            address: 192.168.1.12
+        credentials:
+          username: nsroot
+          password: nsroot
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+      - name: test
+        type: hapair
+        management:
+          name: vpx-tst
+          address: vpx-tst.test.local
+        nodes:
+          - name: vpx-tst-001
+            address: 192.168.2.11
+          - name: vpx-tst-002
+            address: 192.168.2.12
+        credentials:
+          username: nsroot
+          password: nsroot
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+acmeUsers:
+  - name: corelayer_acme
+    email: fake@email.com
+```
+
 ### Certificate configuration
 ```yaml
 name: <name>
-acmeRequest:
+request:
   organization: <organization name>
   environment: <environment name>
   acmeUser: <acme username>
@@ -320,26 +348,28 @@ acmeRequest:
     type: <http-01 | dns-01>
     provider: <netscaler-http-global | netscaler-adns | webserver | <name of dns provider>
   keyType: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
-  commonName: <common name>
-  subjectAlternativeNames:
-    - <subjectAlternativeName>
-    - <subjectAlternativeName>
-bindpoints:
+  content:
+    commonName: <common name>
+    subjectAlternativeNames:
+      - <subjectAlternativeName>
+      - <subjectAlternativeName>
+    subjectAlternativeNamesFile: <filename | filepath>
+installation:
   - organization: <organization name>
     environment: <environment name>
-    sslVservers:
+    sslVirtualServers:
       - name: <ssl vserver name>
         sniEnabled: <true | false>
 ```
 As you can see, the configuration is split up in two parts:
-- acme request
-- bindpoints
+- request
+- installation
 
-#### ACME Request
+#### Request
 This section holds all the details to be able to request a certificate from your ACME service of choice.
 We need to specify the organization and environment name to select which NetScaler to talk to.
 
-#### Bindpoints
+#### Installation
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
 This is especially useful when having SAN-certificates or wildard certificates, so they can be bound appropriately on different NetScaler environments.
 
@@ -352,7 +382,7 @@ This is especially useful when having SAN-certificates or wildard certificates, 
 Certificate configuration:
 ```yaml
 name: corelogic_dev
-acmeRequest:
+request:
   organization: corelayer
   environment: development
   acmeUser: corelayer_acme
@@ -361,11 +391,12 @@ acmeRequest:
     type: http-01
     provider: netscaler-http-global
   keyType: RSA4096
-  commonName: corelogic.dev.corelayer.eu
-bindpoints:
+  content:
+    commonName: corelogic.dev.corelayer.eu
+installation:
   - organization: corelayer
     environment: development
-    sslVservers:
+    sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
 ```
@@ -374,7 +405,7 @@ bindpoints:
 Certificate configuration:
 ```yaml
 name: corelogic_dev
-acmeRequest:
+request:
   organization: corelayer
   environment: development
   acmeUser: corelayer_acme
@@ -383,14 +414,15 @@ acmeRequest:
     type: http-01
     provider: netscaler-http-global
   keyType: RSA4096
-  commonName: corelogic.dev.corelayer.eu
-  subjectAlternativeNames:
-    - demo.dev.corelayer.eu
-    - my.dev.corelayer.eu
-bindpoints:
+  content:
+    commonName: corelogic.dev.corelayer.eu
+    subjectAlternativeNames:
+      - demo.dev.corelayer.eu
+      - my.dev.corelayer.eu
+installation:
   - organization: corelayer
     environment: development
-    sslVservers:
+    sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
 ```
@@ -399,7 +431,7 @@ bindpoints:
 Certificate configuration:
 ```yaml
 name: corelogic_dev
-acmeRequest:
+request:
   organization: corelayer
   environment: development
   acmeUser: corelayer_acme
@@ -408,12 +440,13 @@ acmeRequest:
     type: http-01
     provider: netscaler-http-global
   keyType: RSA4096
-  commonName: corelogic.dev.corelayer.eu
-  subjectAlternativeNamesFile: corelogic_dev_san.txt
-bindpoints:
+  content:
+    commonName: corelogic.dev.corelayer.eu
+    subjectAlternativeNamesFile: corelogic_dev_san.txt
+installation:
   - organization: corelayer
     environment: development
-    sslVservers:
+    sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
 ```
@@ -422,4 +455,34 @@ Subject Alternative Names File (stored next to the certificate configuration fil
 ```text
 demo.dev.corelayer.eu
 my.dev.corelayer.eu
+```
+
+##### Simple certificate - multiple installations
+Certificate configuration:
+```yaml
+name: corelogic_dev
+request:
+  organization: corelayer
+  environment: development
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
+  content:
+    commonName: corelogic.dev.corelayer.eu
+installation:
+  - organization: corelayer
+    environment: development
+    sslVirtualServers:
+      - name: CSV_DEV_SSL
+        sniEnabled: true
+      - name: CSV_PUBLICDEV_SSL
+        sniEnabled: false
+  - organization: corelayer
+    environment: test
+    sslVirtualServers:
+      - name: CSV_TST_SSL
+        sniEnabled: true
 ```
