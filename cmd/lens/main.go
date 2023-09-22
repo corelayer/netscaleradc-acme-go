@@ -22,7 +22,6 @@ import (
 
 	"github.com/corelayer/clapp/pkg/clapp"
 
-	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/daemon"
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/request"
 )
 
@@ -67,7 +66,7 @@ func run() error {
 	}
 
 	app.RegisterCommands([]clapp.Commander{
-		daemon.Command,
+		// daemon.Command,
 		// configure.Command,
 		request.Command,
 	})
