@@ -23,12 +23,7 @@ import (
 	"github.com/corelayer/clapp/pkg/clapp"
 
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/request"
-)
-
-const (
-	LENS_TITLE  = "Let's Encrypt for NetScaler ADC"
-	LENS_BANNER = "    __    _______   _______\n   / /   / ____/ | / / ___/\n  / /   / __/ /  |/ /\\__ \\\n / /___/ /___/ /|  /___/ /\n/_____/_____/_/ |_//____/"
-	// https://patorjk.com/software/taag/#p=display&v=2&f=Slant&t=LENS
+	"github.com/corelayer/netscaleradc-acme-go/pkg/global"
 )
 
 var configSearchPaths = []string{
@@ -56,7 +51,7 @@ func run() error {
 	var configSearchPathFlag []string
 	var logLevelFlag string
 
-	app := clapp.NewApplication("lens", LENS_TITLE, LENS_BANNER+"\n\n"+LENS_TITLE, "")
+	app := clapp.NewApplication("lens", global.LENS_TITLE, global.LENS_BANNER+"\n\n"+global.LENS_TITLE, "")
 	app.Command.PersistentFlags().StringVarP(&configFileFlag, "file", "f", "config.yaml", "config file name")
 	app.Command.PersistentFlags().StringVarP(&configPathFlag, "path", "p", "", "config file path, do not use with -s")
 	app.Command.PersistentFlags().StringVarP(&logLevelFlag, "loglevel", "l", "", "log level")
