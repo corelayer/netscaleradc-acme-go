@@ -33,6 +33,9 @@ var configSearchPaths = []string{
 	filepath.Join("/nsconfig", "ssl", "LENS"),
 	filepath.Join("$HOME", ".lens"),
 	filepath.Join("$PWD"),
+	filepath.Join("%APPDATA%", "corelayer", "lens"),
+	filepath.Join("%LOCALAPPDATA%", "corelayer", "lens"),
+	filepath.Join("%PROGRAMDATA%", "corelayer", "lens"),
 }
 
 func main() {

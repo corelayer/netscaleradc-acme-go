@@ -38,6 +38,10 @@ import (
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
+const (
+	LENS_CERTIFICATE_PATH = "/nsconfig/ssl/LENS/"
+)
+
 type Launcher struct {
 	loader        Loader
 	organizations []registry.Organization
@@ -164,15 +168,15 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 		domains []string
 	)
 
-	user, err = l.getUser(cert.AcmeRequest.AcmeUser)
+	user, err = l.getUser(cert.Request.AcmeUser)
 	if err != nil {
-		slog.Debug("could not find user", "username", cert.AcmeRequest.AcmeUser, "config", cert.Name)
-		return nil, fmt.Errorf("could not find user %s for config %s with message %w", cert.AcmeRequest.AcmeUser, cert.Name, err)
+		slog.Debug("could not find user", "username", cert.Request.AcmeUser, "config", cert.Name)
+		return nil, fmt.Errorf("could not find user %s for config %s with message %w", cert.Request.AcmeUser, cert.Name, err)
 	}
 
 	legoConfig := lego.NewConfig(user)
-	legoConfig.CADirURL = cert.AcmeRequest.GetServiceUrl()
-	legoConfig.Certificate.KeyType = cert.AcmeRequest.GetKeyType()
+	legoConfig.CADirURL = cert.Request.GetServiceUrl()
+	legoConfig.Certificate.KeyType = cert.Request.GetKeyType()
 
 	client, err = lego.NewClient(legoConfig)
 	if err != nil {
@@ -180,19 +184,19 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	}
 
 	var environment registry.Environment
-	environment, err = l.getEnvironment(cert.AcmeRequest.Organization, cert.AcmeRequest.Environment)
+	environment, err = l.getEnvironment(cert.Request.Organization, cert.Request.Environment)
 	if err != nil {
-		slog.Debug("could not find organization environment for acme request", "organization", cert.AcmeRequest.Organization, "environment", cert.AcmeRequest.Environment)
-		return nil, fmt.Errorf("could not find environment %s for organization %s for acme request with message %w", cert.AcmeRequest.Environment, cert.AcmeRequest.Organization, err)
+		slog.Debug("could not find organization environment for acme request", "organization", cert.Request.Organization, "environment", cert.Request.Environment)
+		return nil, fmt.Errorf("could not find environment %s for organization %s for acme request with message %w", cert.Request.Environment, cert.Request.Organization, err)
 	}
 
 	var provider challenge.Provider
-	provider, err = cert.AcmeRequest.GetChallengeProvider(environment, l.timestamp)
+	provider, err = cert.Request.GetChallengeProvider(environment, l.timestamp)
 	if err != nil {
 		return nil, err
 	}
 
-	switch cert.AcmeRequest.Challenge.Type {
+	switch cert.Request.Challenge.Type {
 	case config.ACME_CHALLENGE_TYPE_HTTP:
 		err = client.Challenge.SetHTTP01Provider(provider)
 	case config.ACME_CHALLENGE_TYPE_DNS:
@@ -207,9 +211,8 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	}
 
 	// Get domains for ACME request
-	if domains, err = cert.AcmeRequest.GetDomains(); err != nil {
+	if domains, err = cert.Request.GetDomains(); err != nil {
 		slog.Error("invalid domain in request", "certificate", cert.Name, "error", err)
-
 		return nil, err
 	}
 
@@ -219,7 +222,7 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	// reg, err = client.Registration.QueryRegistration()
 	if err != nil {
 		slog.Error("could not register user", "error", err)
-		return nil, fmt.Errorf("could not register user %s for acme request with message %w", cert.AcmeRequest.AcmeUser, err)
+		return nil, fmt.Errorf("could not register user %s for acme request with message %w", cert.Request.AcmeUser, err)
 	}
 	user.Registration = reg
 
@@ -259,7 +262,7 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 		return errors.New("no certificate available for upload")
 	}
 	var environments []registry.Environment
-	for _, b := range certConfig.Bindpoints {
+	for _, b := range certConfig.Installation {
 		var env registry.Environment
 		env, err = l.getEnvironment(b.Organization, b.Environment)
 		if err != nil {
@@ -281,14 +284,13 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 		fc := controllers.NewSystemFileController(client)
 		certFilename := certConfig.Name + "_" + l.timestamp + ".cer"
 		pkeyFilename := certConfig.Name + "_" + l.timestamp + ".key"
-		location := "/nsconfig/ssl/CERTS/LENS/"
 		slog.Debug("uploading certificate public key to environment", "environment", e.Name, "certificate", certConfig.Name)
-		_, err = fc.Add(certFilename, location, acmeCert.Certificate)
+		_, err = fc.Add(certFilename, LENS_CERTIFICATE_PATH, acmeCert.Certificate)
 		if err != nil {
 			return fmt.Errorf("could not upload certificate public key to environment %s with message %w", e.Name, err)
 		}
 		slog.Debug("uploading certificate private key to environment", "environment", e.Name)
-		_, err = fc.Add(pkeyFilename, location, acmeCert.PrivateKey)
+		_, err = fc.Add(pkeyFilename, LENS_CERTIFICATE_PATH, acmeCert.PrivateKey)
 		if err != nil {
 			return fmt.Errorf("could not upload certificate private key to environment %s with message %w", e.Name, err)
 		}
@@ -305,28 +307,28 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 				return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", e.Name, err)
 			} else {
 				slog.Info("creating ssl certkey in environment", "environment", e.Name, "certificate", certConfig.Name)
-				if _, err = certc.Add(certKeyName, location+certFilename, location+pkeyFilename); err != nil {
+				if _, err = certc.Add(certKeyName, LENS_CERTIFICATE_PATH+certFilename, LENS_CERTIFICATE_PATH+pkeyFilename); err != nil {
 					slog.Error("could not add certificate to environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
 					return fmt.Errorf("could not add certificate to environment %s with message %w", e.Name, err)
 				}
 			}
 		} else {
 			slog.Info("updating ssl certkey in environment", "environment", e.Name)
-			if _, err = certc.Update(certKeyName, location+certFilename, location+pkeyFilename); err != nil {
+			if _, err = certc.Update(certKeyName, LENS_CERTIFICATE_PATH+certFilename, LENS_CERTIFICATE_PATH+pkeyFilename); err != nil {
 				slog.Error("could not update certificate exists in environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
 				return fmt.Errorf("could not update certificate in environment %s with message %w", e.Name, err)
 
 			}
 		}
 
-		for _, b := range certConfig.Bindpoints {
+		for _, b := range certConfig.Installation {
 			var bindings *nitro.Response[nitroConfig.SslCertKeySslVserverBinding]
 			if bindings, err = certc.GetSslVserverBinding(certKeyName, nil); err != nil {
 				slog.Error("could not verify if certificate exists in environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
 				return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", e.Name, err)
 			}
 			if len(bindings.Data) == 0 {
-				for _, bindTo := range b.SslVservers {
+				for _, bindTo := range b.SslVirtualServers {
 					// TODO ADD LOGGING FOR EACH SSL VSERVER
 					if _, err = certc.Bind(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
 						slog.Error("could not bind certificate to vserver", "environment", e.Name, "certificate", certConfig.Name, "error", err)
@@ -334,9 +336,9 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 					}
 				}
 			} else {
-				// TODO UPDATE FLOW --> check if vserver name in SslVservers exists before trying to bind
+				// TODO UPDATE FLOW --> check if vserver name in SslVirtualServers exists before trying to bind
 				slog.Debug("found existing bindings for certificate", "environment", e.Name, "certificate", certConfig.Name, "count", len(bindings.Data))
-				for _, bindTo := range b.SslVservers {
+				for _, bindTo := range b.SslVirtualServers {
 					for _, boundTo := range bindings.Data {
 						if bindTo.Name == boundTo.ServerName {
 							slog.Debug("certificate already bound to vserver", "certificate", certKeyName, "vserver", bindTo.Name)

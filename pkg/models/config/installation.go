@@ -16,8 +16,8 @@
 
 package config
 
-type Bindpoint struct {
-	Organization string       `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Environment  string       `json:"environment" yaml:"environment" mapstructure:"environment"`
-	SslVservers  []sslVserver `json:"sslVservers" yaml:"sslVservers" mapstructure:"sslVservers"`
+type Installation struct {
+	Organization      string             `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment       string             `json:"environment" yaml:"environment" mapstructure:"environment"`
+	SslVirtualServers []sslVirtualServer `json:"sslVirtualServers" yaml:"sslVirtualServers" mapstructure:"sslVirtualServers"`
 }
