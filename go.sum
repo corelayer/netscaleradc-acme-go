@@ -163,6 +163,12 @@ github.com/corelayer/clapp v0.0.0-20230828153946-81c70ad10a8b h1:zfyjQM2a/DA0DAt
 github.com/corelayer/clapp v0.0.0-20230828153946-81c70ad10a8b/go.mod h1:G/bE/uo5IqaJoBXJKpikiqIF6S1M7lmtA5XeI3LpkJY=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922083906-c072842ffcd9 h1:/yy+ABamuVeX4OoHqv/u9ZBjaYX0cRvNqnlWA29dy3o=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922083906-c072842ffcd9/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922162926-5ffc62960997 h1:DP6fwNuZl/SL2L1QkpMjfwe3kuVeyG5vucw7RgF05dQ=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922162926-5ffc62960997/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922164344-dc51060e69bc h1:iUZbHGlEKGveLGlQyQp5XmrlQFdp/0DCT+o8hUIxb1o=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922164344-dc51060e69bc/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922164813-6e723f8060bb h1:Ux7vfO+33LrZZh0CNrZMOFnVZ4e49MfCmS9qVPMKDyw=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20230922164813-6e723f8060bb/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
