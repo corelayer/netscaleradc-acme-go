@@ -262,6 +262,94 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	return certificates, nil
 }
 
+func (l Launcher) updateEnvironment(certName string, installation config.Installation, acmeCert *certificate.Resource) error {
+	var (
+		err    error
+		e      registry.Environment
+		client *nitro.Client
+	)
+	e, err = l.getEnvironment(installation.Organization, installation.Environment)
+	if err != nil {
+		slog.Error("could not get environment for organization")
+		return fmt.Errorf("could not get environment %s for organization %s with message %w", installation.Environment, installation.Organization, err)
+	}
+
+	client, err = e.GetPrimaryNitroClient()
+
+	if err != nil {
+		slog.Error("could not get nitro client for environment")
+		return fmt.Errorf("could not get nitro client for environment %s with message %w", e.Name, err)
+	}
+	fc := controllers.NewSystemFileController(client)
+	certFilename := certName + "_" + l.timestamp + ".cer"
+	pkeyFilename := certName + "_" + l.timestamp + ".key"
+	slog.Debug("uploading certificate public key to environment", "environment", e.Name, "certificate", certName)
+	_, err = fc.Add(certFilename, LENS_CERTIFICATE_PATH, acmeCert.Certificate)
+	if err != nil {
+		return fmt.Errorf("could not upload certificate public key to environment %s with message %w", e.Name, err)
+	}
+	slog.Debug("uploading certificate private key to environment", "environment", e.Name)
+	_, err = fc.Add(pkeyFilename, LENS_CERTIFICATE_PATH, acmeCert.PrivateKey)
+	if err != nil {
+		return fmt.Errorf("could not upload certificate private key to environment %s with message %w", e.Name, err)
+	}
+
+	certc := controllers.NewSslCertKeyController(client)
+
+	if installation.ReplaceDefaultCertificate {
+		err = l.replaceDefaultCertificate(client, installation.Environment, LENS_CERTIFICATE_PATH+certFilename, LENS_CERTIFICATE_PATH+pkeyFilename)
+		if err != nil {
+			slog.Error("could not replace default certificate", "environment", installation.Environment)
+			return err
+		}
+		time.Sleep(5 * time.Second)
+	} else {
+		certKeyName := "LENS_" + certName
+
+		// Check if certificate exists
+		// var certKey *nitro.Response[nitroConfig.SslCertKey]
+		var uErr error
+		if _, err = certc.Get(certKeyName, nil); err != nil {
+			uErr = errors.Unwrap(err)
+			if !errors.Is(uErr, nitro.NSERR_SSL_NOCERT) {
+				slog.Error("could not verify if certificate exists in environment", "environment", e.Name, "certificate", certName, "error", err)
+				return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", e.Name, err)
+			} else {
+				slog.Info("creating ssl certkey in environment", "environment", e.Name, "certificate", certName)
+				if _, err = certc.Add(certKeyName, LENS_CERTIFICATE_PATH+certFilename, LENS_CERTIFICATE_PATH+pkeyFilename); err != nil {
+					slog.Error("could not add certificate to environment", "environment", e.Name, "certificate", certName, "error", err)
+					return fmt.Errorf("could not add certificate to environment %s with message %w", e.Name, err)
+				}
+			}
+		} else {
+			slog.Info("updating ssl certkey in environment", "environment", e.Name)
+			if _, err = certc.Update(certKeyName, LENS_CERTIFICATE_PATH+certFilename, LENS_CERTIFICATE_PATH+pkeyFilename, true); err != nil {
+				slog.Error("could not update certificate exists in environment", "environment", e.Name, "certificate", certName, "error", err)
+				return fmt.Errorf("could not update certificate in environment %s with message %w", e.Name, err)
+
+			}
+		}
+
+		err = l.bindSslVservers(client, certKeyName, installation)
+		if err != nil {
+			return err
+		}
+
+		err = l.bindSslService(client, certKeyName, installation)
+		if err != nil {
+			return err
+		}
+	}
+
+	// TODO - SAVE CONFIG LOGIC
+	slog.Debug("saving config")
+	if err = client.SaveConfig(); err != nil {
+		slog.Error("error saving config", "environment", e.Name, "error", err)
+		return err
+	}
+	return nil
+}
+
 func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certificate.Resource) error {
 	var (
 		err error
@@ -272,107 +360,109 @@ func (l Launcher) updateNetScaler(certConfig config.Certificate, acmeCert *certi
 		return errors.New("no certificate available for upload")
 	}
 
-	var environments []registry.Environment
+	wg := sync.WaitGroup{}
+	// TODO updateNetScaler - validate configuration so that org/env does not appear more than once in installation section
 	for _, b := range certConfig.Installation {
-		var env registry.Environment
-		env, err = l.getEnvironment(b.Organization, b.Environment)
-		if err != nil {
-			slog.Error("could not get environment for organization")
-			return fmt.Errorf("could not get environment %s for organization %s with message %w", b.Environment, b.Organization, err)
-		}
+		wg.Add(1)
+		go func(certName string, installation config.Installation, acmeCert *certificate.Resource, w *sync.WaitGroup) {
+			defer wg.Done()
 
-		environments = append(environments, env)
+			err = l.updateEnvironment(certName, installation, acmeCert)
+
+		}(certConfig.Name, b, acmeCert, &wg)
+		// environments = append(environments, env)
+
 	}
+	wg.Wait()
+	return err
+}
 
-	for _, e := range environments {
-		var client *nitro.Client
-		client, err = e.GetPrimaryNitroClient()
+func (l Launcher) replaceDefaultCertificate(c *nitro.Client, environment string, certFilename string, keyFilename string) error {
+	var (
+		err error
+	)
+	slog.Debug("replacing default certificate", "environment", environment)
+	certc := controllers.NewSslCertKeyController(c)
+	_, err = certc.Update("ns-server-certificate", certFilename, keyFilename, true)
+	return err
+}
 
-		if err != nil {
-			slog.Error("could not get nitro client for environment")
-			return fmt.Errorf("could not get nitro client for environment %s with message %w", e.Name, err)
-		}
-		fc := controllers.NewSystemFileController(client)
-		certFilename := certConfig.Name + "_" + l.timestamp + ".cer"
-		pkeyFilename := certConfig.Name + "_" + l.timestamp + ".key"
-		slog.Debug("uploading certificate public key to environment", "environment", e.Name, "certificate", certConfig.Name)
-		_, err = fc.Add(certFilename, LENS_CERTIFICATE_PATH, acmeCert.Certificate)
-		if err != nil {
-			return fmt.Errorf("could not upload certificate public key to environment %s with message %w", e.Name, err)
-		}
-		slog.Debug("uploading certificate private key to environment", "environment", e.Name)
-		_, err = fc.Add(pkeyFilename, LENS_CERTIFICATE_PATH, acmeCert.PrivateKey)
-		if err != nil {
-			return fmt.Errorf("could not upload certificate private key to environment %s with message %w", e.Name, err)
-		}
-
-		certKeyName := "LENS_" + certConfig.Name
-		certc := controllers.NewSslCertKeyController(client)
-		// Check if certificate exists
-		// var certKey *nitro.Response[nitroConfig.SslCertKey]
-		var uErr error
-		if _, err = certc.Get(certKeyName, nil); err != nil {
-			uErr = errors.Unwrap(err)
-			if !errors.Is(uErr, nitro.NSERR_SSL_NOCERT) {
-				slog.Error("could not verify if certificate exists in environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
-				return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", e.Name, err)
-			} else {
-				slog.Info("creating ssl certkey in environment", "environment", e.Name, "certificate", certConfig.Name)
-				if _, err = certc.Add(certKeyName, LENS_CERTIFICATE_PATH+certFilename, LENS_CERTIFICATE_PATH+pkeyFilename); err != nil {
-					slog.Error("could not add certificate to environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
-					return fmt.Errorf("could not add certificate to environment %s with message %w", e.Name, err)
-				}
-			}
-		} else {
-			slog.Info("updating ssl certkey in environment", "environment", e.Name)
-			if _, err = certc.Update(certKeyName, LENS_CERTIFICATE_PATH+certFilename, LENS_CERTIFICATE_PATH+pkeyFilename); err != nil {
-				slog.Error("could not update certificate exists in environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
-				return fmt.Errorf("could not update certificate in environment %s with message %w", e.Name, err)
-
+func (l Launcher) bindSslVservers(c *nitro.Client, certKeyName string, b config.Installation) error {
+	var (
+		err error
+	)
+	certc := controllers.NewSslCertKeyController(c)
+	var bindings *nitro.Response[nitroConfig.SslCertKeySslVserverBinding]
+	if bindings, err = certc.GetSslVserverBinding(certKeyName, nil); err != nil {
+		slog.Error("could not verify if certificate exists in environment", "environment", b.Environment, "certificate", certKeyName, "error", err)
+		return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", b.Environment, err)
+	}
+	if len(bindings.Data) == 0 {
+		for _, bindTo := range b.SslVirtualServers {
+			// TODO ADD LOGGING FOR EACH SSL VSERVER
+			if _, err = certc.BindSslVserver(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
+				slog.Error("could not bind certificate to vserver", "environment", b.Environment, "certificate", certKeyName, "error", err)
+				// return fmt.Errorf("could not bind certificate %s to vserver in environment %s with message %w", certKeyName, e.Name, err)
 			}
 		}
-
-		for _, b := range certConfig.Installation {
-			var bindings *nitro.Response[nitroConfig.SslCertKeySslVserverBinding]
-			if bindings, err = certc.GetSslVserverBinding(certKeyName, nil); err != nil {
-				slog.Error("could not verify if certificate exists in environment", "environment", e.Name, "certificate", certConfig.Name, "error", err)
-				return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", e.Name, err)
-			}
-			if len(bindings.Data) == 0 {
-				for _, bindTo := range b.SslVirtualServers {
-					// TODO ADD LOGGING FOR EACH SSL VSERVER
-					if _, err = certc.Bind(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
-						slog.Error("could not bind certificate to vserver", "environment", e.Name, "certificate", certConfig.Name, "error", err)
+	} else {
+		// TODO UPDATE FLOW --> check if vserver name in SslVirtualServers exists before trying to bind
+		slog.Debug("found existing bindings for certificate", "environment", b.Environment, "certificate", certKeyName, "count", len(bindings.Data))
+		for _, bindTo := range b.SslVirtualServers {
+			for _, boundTo := range bindings.Data {
+				if bindTo.Name == boundTo.ServerName {
+					slog.Debug("certificate already bound to vserver", "certificate", certKeyName, "vserver", bindTo.Name)
+					continue
+				} else {
+					slog.Debug("binding certificate to vserver", "certificate", certKeyName, "vserver", bindTo.Name)
+					if _, err = certc.BindSslVserver(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
+						slog.Error("could not bind certificate to vserver", "environment", b.Environment, "certificate", certKeyName, "error", err)
 						// return fmt.Errorf("could not bind certificate %s to vserver in environment %s with message %w", certKeyName, e.Name, err)
 					}
 				}
-			} else {
-				// TODO UPDATE FLOW --> check if vserver name in SslVirtualServers exists before trying to bind
-				slog.Debug("found existing bindings for certificate", "environment", e.Name, "certificate", certConfig.Name, "count", len(bindings.Data))
-				for _, bindTo := range b.SslVirtualServers {
-					for _, boundTo := range bindings.Data {
-						if bindTo.Name == boundTo.ServerName {
-							slog.Debug("certificate already bound to vserver", "certificate", certKeyName, "vserver", bindTo.Name)
-							continue
-						} else {
-							slog.Debug("binding certificate to vserver", "certificate", certKeyName, "vserver", bindTo.Name)
-							if _, err = certc.Bind(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
-								slog.Error("could not bind certificate to vserver", "environment", e.Name, "certificate", certConfig.Name, "error", err)
-								// return fmt.Errorf("could not bind certificate %s to vserver in environment %s with message %w", certKeyName, e.Name, err)
-							}
-						}
+			}
+		}
+	}
+	return err
+}
+
+func (l Launcher) bindSslService(c *nitro.Client, certKeyName string, b config.Installation) error {
+	var (
+		err error
+	)
+	certc := controllers.NewSslCertKeyController(c)
+	var bindings *nitro.Response[nitroConfig.SslCertKeyServiceBinding]
+	if bindings, err = certc.GetServiceBinding(certKeyName, nil); err != nil {
+		slog.Error("could not verify if certificate exists in environment", "environment", b.Environment, "certificate", certKeyName, "error", err)
+		return fmt.Errorf("could not verify if certificate exists in environment %s with message %w", b.Environment, err)
+	}
+	if len(bindings.Data) == 0 {
+		for _, bindTo := range b.SslServices {
+			// TODO ADD LOGGING FOR EACH SSL SERVICE
+			if _, err = certc.BindSslService(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
+				slog.Error("could not bind certificate to service", "environment", b.Environment, "certificate", certKeyName, "error", err)
+				// return fmt.Errorf("could not bind certificate %s to service in environment %s with message %w", certKeyName, e.Name, err)
+			}
+		}
+	} else {
+		// TODO UPDATE FLOW --> check if service name in SslVirtualServers exists before trying to bind
+		slog.Debug("found existing bindings for certificate", "environment", b.Environment, "certificate", certKeyName, "count", len(bindings.Data))
+		for _, bindTo := range b.SslServices {
+			for _, boundTo := range bindings.Data {
+				if bindTo.Name == boundTo.ServiceName {
+					slog.Debug("certificate already bound to service", "certificate", certKeyName, "service", bindTo.Name)
+					continue
+				} else {
+					slog.Debug("binding certificate to service", "certificate", certKeyName, "service", bindTo.Name)
+					if _, err = certc.BindSslService(bindTo.Name, certKeyName, bindTo.SniEnabled); err != nil {
+						slog.Error("could not bind certificate to service", "environment", b.Environment, "certificate", certKeyName, "error", err)
+						// return fmt.Errorf("could not bind certificate %s to service in environment %s with message %w", certKeyName, e.Name, err)
 					}
 				}
 			}
 		}
-		// TODO - SAVE CONFIG LOGIC
-		slog.Debug("saving config")
-		if err = client.SaveConfig(); err != nil {
-			slog.Error("error saving config", "environment", e.Name, "error", err)
-			return err
-		}
 	}
-	return nil
+	return err
 }
 
 func (l Launcher) getEnvironment(organization string, environment string) (registry.Environment, error) {

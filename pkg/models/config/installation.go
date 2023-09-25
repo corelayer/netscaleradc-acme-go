@@ -17,7 +17,9 @@
 package config
 
 type Installation struct {
-	Organization      string             `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Environment       string             `json:"environment" yaml:"environment" mapstructure:"environment"`
-	SslVirtualServers []sslVirtualServer `json:"sslVirtualServers" yaml:"sslVirtualServers" mapstructure:"sslVirtualServers"`
+	Organization              string             `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment               string             `json:"environment" yaml:"environment" mapstructure:"environment"`
+	ReplaceDefaultCertificate bool               `json:"replaceDefaultCertificate" yaml:"replaceDefaultCertificate" mapstructure:"replaceDefaultCertificate"`
+	SslVirtualServers         []sslVirtualServer `json:"sslVirtualServers" yaml:"sslVirtualServers" mapstructure:"sslVirtualServers"`
+	SslServices               []sslService       `json:"sslServices" yaml:"sslServices" mapstructure:"sslServices"`
 }
