@@ -357,8 +357,12 @@ request:
 installation:
   - organization: <organization name>
     environment: <environment name>
+    replaceDefaultCertificate: <true | false>
     sslVirtualServers:
       - name: <ssl vserver name>
+        sniEnabled: <true | false>
+    sslServices:
+      - name: <ssl service name>
         sniEnabled: <true | false>
 ```
 As you can see, the configuration is split up in two parts:
@@ -372,6 +376,8 @@ We need to specify the organization and environment name to select which NetScal
 #### Installation
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
 This is especially useful when having SAN-certificates or wildard certificates, so they can be bound appropriately on different NetScaler environments.
+
+**Note that you cannot have the option "replaceDefaultCertificate" set to ```true``` while having endpoints defined under "sslVserver" and/or "sslServices"**
 
 #### Examples
 - [Simple certificate](#simple-certificate)
