@@ -382,6 +382,7 @@ This is especially useful when having SAN-certificates or wildard certificates, 
 #### Examples
 - [Simple certificate](#simple-certificate)
 - [SAN certificate - using manual entries](#san-certificate---using-manual-entries)
+- [SAN certificate - replace default NetScaler certificate](#san-certificate---replace-default-netscaler-certificate)
 - [SAN certificate - using external file](#san-certificate---using-external-file)
 
 ##### Simple certificate
@@ -431,6 +432,30 @@ installation:
     sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
+```
+
+##### SAN certificate - Replace default NetScaler certificate
+Certificate configuration:
+```yaml
+name: corelogic_dev
+request:
+  organization: corelayer
+  environment: development
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
+  content:
+    commonName: vpx.dev.corelayer.eu
+    subjectAlternativeNames:
+      - vpx-001.dev.corelayer.eu
+      - vpx-002.dev.corelayer.eu
+installation:
+  - organization: corelayer
+    environment: development
+    replaceDefaultCertificate: true
 ```
 
 ##### SAN certificate - using external file
