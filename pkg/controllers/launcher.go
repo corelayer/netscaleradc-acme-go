@@ -31,6 +31,7 @@ import (
 	"github.com/corelayer/netscaleradc-nitro-go/pkg/registry"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/challenge"
+	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
 
@@ -210,7 +211,11 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	case config.ACME_CHALLENGE_TYPE_HTTP:
 		err = client.Challenge.SetHTTP01Provider(provider)
 	case config.ACME_CHALLENGE_TYPE_DNS:
-		err = client.Challenge.SetDNS01Provider(provider)
+		if cert.Request.Challenge.DisableDnsPropagationCheck {
+			err = client.Challenge.SetDNS01Provider(provider, dns01.DisableCompletePropagationRequirement())
+		} else {
+			err = client.Challenge.SetDNS01Provider(provider)
+		}
 	case config.ACME_CHALLENGE_TYPE_TLS_ALPN:
 		err = client.Challenge.SetTLSALPN01Provider(provider)
 	default:
