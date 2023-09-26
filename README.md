@@ -346,7 +346,8 @@ request:
   challenge:
     service: LE_STAGING | LE_PRODUCTION | <custom url>
     type: <http-01 | dns-01>
-    provider: <netscaler-http-global | netscaler-adns | webserver | <name of dns provider>
+    provider: <netscaler-http-global | netscaler-adns | <name of dns provider>
+    disableDnsPropagationCheck: <true | false>
   keyType: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
   content:
     commonName: <common name>
@@ -372,6 +373,28 @@ As you can see, the configuration is split up in two parts:
 #### Request
 This section holds all the details to be able to request a certificate from your ACME service of choice.
 We need to specify the organization and environment name to select which NetScaler to talk to.
+
+##### Challenge
+###### Service
+You can either choose one of the pre-defined services, or specify your own ACME Service URL.
+- LE_STAGING: Let's Encrypt STAGING Environment
+- LE_PRODUCTION: Let's Encrypt PRODUCTION Environment
+
+###### Type
+We currently either support ```http-01``` or ```dns-01``` as the challenge type.
+
+###### Provider
+This tool is primarily meant for use with NetScaler ADC, both for the certificate request as for the installation of the certificate.
+However, we do support external DNS providers.
+
+- netscaler-http-global
+- netscaler-adns
+
+**Other DNS providers are to be enabled in a future releases.**
+
+###### DisableDnsPropagationCheck
+In case you are executing a challenge from within a network that has split-DNS (different DNS responses on the internet compared to the local network), you might need to enable **DisableDnsPropagationCheck**.</br>When enabled, lens will not wait for any propagation to happen, nor will it check if propagation has succeeded in orde for it to complete the challenge.
+
 
 #### Installation
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
