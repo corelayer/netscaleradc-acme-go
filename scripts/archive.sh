@@ -29,6 +29,7 @@ rm -rf output/archives/*
 OUTBASEBIN="output/bin"
 OUTBASEZIP="output/archives"
 
+mkdir -p $OUTBASEZIP
 echo "Archive executables per platform"
 GOOS=linux
 GOARCH=amd64
