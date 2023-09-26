@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers/command"
+	"github.com/corelayer/netscaleradc-acme-go/pkg/global"
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
@@ -31,7 +32,7 @@ var Command = clapp.Command{
 	Cobra: &cobra.Command{
 		Use:   "request",
 		Short: "Request mode",
-		Long:  "Let's Encrypt for NetScaler ADC - Request Mode",
+		Long:  global.LENS_BANNER + "\n\n" + global.LENS_TITLE + " - Request Mode",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 
@@ -115,22 +116,33 @@ var Command = clapp.Command{
 				return err
 			}
 
-			c := command.Request{
-				Config:     appConfig,
-				Request:    name,
-				RequestAll: all,
+			var c command.Request
+			if name != "" {
+				c = command.Request{
+					Config:     appConfig,
+					Request:    name,
+					RequestAll: false,
+				}
+			}
+
+			if all {
+				c = command.Request{
+					Config:     appConfig,
+					Request:    name,
+					RequestAll: all,
+				}
 			}
 			err = c.Execute()
 			return err
 		},
 		SilenceErrors: true,
-		SilenceUsage:  true,
+		SilenceUsage:  false,
 	},
 }
 
 func init() {
 	Command.Cobra.Flags().StringP("name", "n", "", "request name")
-	Command.Cobra.Flags().BoolP("all", "a", true, "request all")
+	Command.Cobra.Flags().BoolP("all", "a", false, "request all")
 
 	Command.Cobra.MarkFlagsMutuallyExclusive("name", "all")
 

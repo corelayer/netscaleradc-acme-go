@@ -34,7 +34,7 @@ func (c Request) Execute() error {
 		err      error
 		launcher *controllers.Launcher
 	)
-	launcher, err = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users)
+	launcher, err = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.AcmeUsers)
 	if err != nil {
 		return err
 	}

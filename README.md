@@ -11,6 +11,7 @@ We provide binaries for different operating systems and architectures:
 - Windows (amd64/arm64)
 - FreeBSD (amd64/arm64), versions > FreeBSD 11
 
+#### Native NetScaler ADC binary
 Lens was initially designed to be run on NetScaler appliances directly as well.</br>
 Since NetScaler is based on a **heavily modified** FreeBSD, this shouldn't pose any problems.
 
@@ -27,15 +28,32 @@ FreeBSD 11.4-NETSCALER-14.1 amd64 amd64
 Again, NetScaler is based on a **heavily modified** FreeBSD operating system, but base OS is still FreeBSD 11.4.
 As such, it is currently not possible to run the tool on a NetScaler directly.
 
-### NetScaler ADC
- - You will need internet access to connect to your ACME service of choice. By default we support both staging and production environments for Let's Encrypt.
+### Certificate Authorities
+
+By default we support both staging and production environments for Let's Encrypt.
 Lens is designed to work with other certificate authorities who provide access through the ACME protocol.
- </br>If you are a user of other ACME-protocol based services, please reach out so we can ensure maximum compatibility!
 
-- You wil need connectivity with either the NSIP or SNIP address for the environments to which you will connect.
+*If you are a user of other ACME-protocol based services, such as Sectigo, please reach out so we can ensure maximum compatibility!*
 
+### NetScaler ADC
+#### User permissions
 - You will need a user account with the following permissions:
-  - \<TBD>
+    - \<TBD>
+
+For easy configuration, we provide the necessary commands to create the command policy on NetScaler ADC in the section below.
+##### CLI Commands
+```text
+</TBD>
+```
+##### Terraform
+```text
+</TBD>
+```
+
+#### Running on NetScaler ADC natively
+If you run the binary natively on NetScaler ADC:
+- You will need internet access to connect to your ACME service of choice if you want to run natively on NetScaler ADC
+- You wil need connectivity with either the NSIP or SNIP address for the environments to which you will connect.
 
 ## Running Lens
 ```
@@ -46,7 +64,6 @@ Usage:
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
-  daemon      Daemon mode
   help        Help about any command
   request     Request mode
 
@@ -65,6 +82,9 @@ By default, lens will be looking for a global configuration file in the followin
 - /nsconfig/ssl/LENS
 - $HOME/.lens
 - $PWD (the current working directory)
+- %APPDATA%
+- %LOCALAPPDATA%
+- %PROGRAMDATA%
 
 Global Flags:
 - -f / --file: allows you to specify a custom global configuration file
@@ -103,28 +123,6 @@ Flags:
 
 The global flags are still applicable and can be used accordingly.
 
-
-### Daemon mode
-```
-Let's Encrypt for NetScaler ADC - Daemon Mode
-
-Usage:
-  lens daemon [flags]
-
-Flags:
-  -h, --help   help for daemon
-
-Global Flags:
-  -f, --file string       config file name (default "config.yaml")
-  -l, --loglevel string   log level
-  -p, --path string       config file path, do not use with -s
-  -s, --search strings    config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD])
-```
-
-**Not implemented**
-
-The goal is to run lens as a daemon which verifies the actual state of the current certificates and request new ones accordingly.
-
 ### Configuration mode
 
 **Not implemented**
@@ -145,15 +143,12 @@ The individual certificate configuration files can be stored elsewhere on the sy
 ### Global configuration
 ```
 configPath: <path to the individua certificate configuration files>
-daemon:
-  address: <ip address>
-  port: <port>>
 organizations:
   - name: <organization name>
     environments:
       - name: <environment name>
         type: <standalone | hapair | cluster>
-        snip:
+        management:
           name: <name for the SNIP address>
           address: <SNIP address>
         nodes:
@@ -168,7 +163,7 @@ organizations:
           validateServerCertificate: <true | false>
           logTlsSecrets: <true | false>
           autoLogin: <true | false>
-users:
+acmeUsers:
   - name: <acme username>
     email: <acme e-mail address>
 ```
@@ -178,20 +173,18 @@ users:
 - [Standalone - using NSIP](#standalone---using-nsip)
 - [High-Availability pair - using SNIP](#high-availability-pair---using-snip)
 - [High-Availability pair - using NSIP](#high-availability-pair---using-nsip)
+- [Multiple environments](#multiple-environments)
 
 ##### Standalone - using SNIP
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
       - name: development
         type: standalone
-        snip:
+        management:
           name: vpx-dev-snip
           address: 192.168.1.10
         nodes:
@@ -206,7 +199,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -215,9 +208,6 @@ users:
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
@@ -235,7 +225,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -244,15 +234,12 @@ users:
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
       - name: development
         type: hapair
-        snip:
+        management:
           name: vpx-dev-snip
           address: 192.168.1.10
         nodes:
@@ -269,7 +256,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -278,9 +265,6 @@ users:
 Global configuration:
 ```yaml
 configPath: conf.d
-daemon:
-  address: 127.0.0.1
-  port: 12345
 organizations:
   - name: corelayer
     environments:
@@ -300,7 +284,54 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-users:
+acmeUsers:
+  - name: corelayer_acme
+    email: fake@email.com
+```
+
+##### Multiple environments
+Global configuration:
+```yaml
+configPath: conf.d
+organizations:
+  - name: corelayer
+    environments:
+      - name: development
+        type: hapair
+        nodes:
+          - name: vpx-dev-001
+            address: 192.168.1.11
+          - name: vpx-dev-002
+            address: 192.168.1.12
+        credentials:
+          username: nsroot
+          password: nsroot
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+      - name: test
+        type: hapair
+        management:
+          name: vpx-tst
+          address: vpx-tst.test.local
+        nodes:
+          - name: vpx-tst-001
+            address: 192.168.2.11
+          - name: vpx-tst-002
+            address: 192.168.2.12
+        credentials:
+          username: nsroot
+          password: nsroot
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -308,57 +339,71 @@ users:
 ### Certificate configuration
 ```yaml
 name: <name>
-acmeRequest:
+request:
   organization: <organization name>
   environment: <environment name>
-  username: <acme username>
-  service: LE_STAGING | LE_PRODUCTION | <custom address>
-  type: <netscaler-http-global | netscaler-adns | http | <name of dns provider>
-  keytype: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
-  commonName: <common name>
-  subjectAlternativeNames:
-    - <subjectAlternativeName>
-    - <subjectAlternativeName>
-bindpoints:
+  acmeUser: <acme username>
+  challenge:
+    service: LE_STAGING | LE_PRODUCTION | <custom url>
+    type: <http-01 | dns-01>
+    provider: <netscaler-http-global | netscaler-adns | webserver | <name of dns provider>
+  keyType: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
+  content:
+    commonName: <common name>
+    subjectAlternativeNames:
+      - <subjectAlternativeName>
+      - <subjectAlternativeName>
+    subjectAlternativeNamesFile: <filename | filepath>
+installation:
   - organization: <organization name>
     environment: <environment name>
-    sslVservers:
+    replaceDefaultCertificate: <true | false>
+    sslVirtualServers:
       - name: <ssl vserver name>
+        sniEnabled: <true | false>
+    sslServices:
+      - name: <ssl service name>
         sniEnabled: <true | false>
 ```
 As you can see, the configuration is split up in two parts:
-- acme request
-- bindpoints
+- request
+- installation
 
-#### ACME Request
+#### Request
 This section holds all the details to be able to request a certificate from your ACME service of choice.
 We need to specify the organization and environment name to select which NetScaler to talk to.
 
-#### Bindpoints
+#### Installation
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
 This is especially useful when having SAN-certificates or wildard certificates, so they can be bound appropriately on different NetScaler environments.
+
+**Note that you cannot have the option "replaceDefaultCertificate" set to ```true``` while having endpoints defined under "sslVserver" and/or "sslServices"**
 
 #### Examples
 - [Simple certificate](#simple-certificate)
 - [SAN certificate - using manual entries](#san-certificate---using-manual-entries)
+- [SAN certificate - replace default NetScaler certificate](#san-certificate---replace-default-netscaler-certificate)
 - [SAN certificate - using external file](#san-certificate---using-external-file)
 
 ##### Simple certificate
 Certificate configuration:
 ```yaml
 name: corelogic_dev
-acmeRequest:
+request:
   organization: corelayer
   environment: development
-  username: corelayer_acme
-  service: LE_STAGING
-  type: netscaler-http-global
-  keytype: RSA4096
-  commonName: corelogic.dev.corelayer.eu
-bindpoints:
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
+  content:
+    commonName: corelogic.dev.corelayer.eu
+installation:
   - organization: corelayer
     environment: development
-    sslVservers:
+    sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
 ```
@@ -367,42 +412,72 @@ bindpoints:
 Certificate configuration:
 ```yaml
 name: corelogic_dev
-acmeRequest:
+request:
   organization: corelayer
   environment: development
-  username: corelayer_acme
-  service: LE_STAGING
-  type: netscaler-http-global
-  keytype: RSA4096
-  commonName: corelogic.dev.corelayer.eu
-  subjectAlternativeNames:
-    - demo.dev.corelayer.eu
-    - my.dev.corelayer.eu
-bindpoints:
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
+  content:
+    commonName: corelogic.dev.corelayer.eu
+    subjectAlternativeNames:
+      - demo.dev.corelayer.eu
+      - my.dev.corelayer.eu
+installation:
   - organization: corelayer
     environment: development
-    sslVservers:
+    sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
+```
+
+##### SAN certificate - Replace default NetScaler certificate
+Certificate configuration:
+```yaml
+name: corelogic_dev
+request:
+  organization: corelayer
+  environment: development
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
+  content:
+    commonName: vpx.dev.corelayer.eu
+    subjectAlternativeNames:
+      - vpx-001.dev.corelayer.eu
+      - vpx-002.dev.corelayer.eu
+installation:
+  - organization: corelayer
+    environment: development
+    replaceDefaultCertificate: true
 ```
 
 ##### SAN certificate - using external file
 Certificate configuration:
 ```yaml
 name: corelogic_dev
-acmeRequest:
+request:
   organization: corelayer
   environment: development
-  username: corelayer_acme
-  service: LE_STAGING
-  type: netscaler-http-global
-  keytype: RSA4096
-  commonName: corelogic.dev.corelayer.eu
-  subjectAlternativeNamesFile: corelogic_dev_san.txt
-bindpoints:
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
+  content:
+    commonName: corelogic.dev.corelayer.eu
+    subjectAlternativeNamesFile: corelogic_dev_san.txt
+installation:
   - organization: corelayer
     environment: development
-    sslVservers:
+    sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
 ```
@@ -411,4 +486,34 @@ Subject Alternative Names File (stored next to the certificate configuration fil
 ```text
 demo.dev.corelayer.eu
 my.dev.corelayer.eu
+```
+
+##### Simple certificate - multiple installations
+Certificate configuration:
+```yaml
+name: corelogic_dev
+request:
+  organization: corelayer
+  environment: development
+  acmeUser: corelayer_acme
+  challenge:
+    service: LE_STAGING
+    type: http-01
+    provider: netscaler-http-global
+  keyType: RSA4096
+  content:
+    commonName: corelogic.dev.corelayer.eu
+installation:
+  - organization: corelayer
+    environment: development
+    sslVirtualServers:
+      - name: CSV_DEV_SSL
+        sniEnabled: true
+      - name: CSV_PUBLICDEV_SSL
+        sniEnabled: false
+  - organization: corelayer
+    environment: test
+    sslVirtualServers:
+      - name: CSV_TST_SSL
+        sniEnabled: true
 ```

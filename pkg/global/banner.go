@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 
-package config
+package global
 
-type Bindpoint struct {
-	Organization string       `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Environment  string       `json:"environment" yaml:"environment" mapstructure:"environment"`
-	SslVservers  []sslVserver `json:"sslVservers" yaml:"sslVservers" mapstructure:"sslVservers"`
-}
+const (
+	LENS_TITLE  = "Let's Encrypt for NetScaler ADC"
+	LENS_BANNER = "    __    _______   _______\n   / /   / ____/ | / / ___/\n  / /   / __/ /  |/ /\\__ \\\n / /___/ /___/ /|  /___/ /\n/_____/_____/_/ |_//____/"
+	// https://patorjk.com/software/taag/#p=display&v=2&f=Slant&t=LENS
+)

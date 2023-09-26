@@ -16,7 +16,7 @@
 
 package config
 
-type sslVirtualServer struct {
+type sslService struct {
 	Name       string `json:"name" yaml:"name" mapstructure:"name"`
 	SniEnabled bool   `json:"sniEnabled" yaml:"sniEnabled" mapstructure:"sniEnabled"`
 }

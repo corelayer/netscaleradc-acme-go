@@ -116,7 +116,7 @@ func (l Loader) loadCertificateConfig(v *viper.Viper) (config.Certificate, error
 		return config.Certificate{}, err
 	}
 
-	output.AcmeRequest = output.AcmeRequest.SetPath(l.basePath)
+	output.Request = output.Request.SetPath(l.basePath)
 
 	return output, nil
 }

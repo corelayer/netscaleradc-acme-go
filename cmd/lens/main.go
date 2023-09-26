@@ -22,18 +22,18 @@ import (
 
 	"github.com/corelayer/clapp/pkg/clapp"
 
-	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/daemon"
 	"github.com/corelayer/netscaleradc-acme-go/cmd/lens/cmd/request"
+	"github.com/corelayer/netscaleradc-acme-go/pkg/global"
 )
-
-// Banner generated at https://patorjk.com/software/taag/#p=display&v=3&f=Ivrit&t=NetScaler%20ADC%20-%20ACME
-var banner = "\n\n  _   _      _   ____            _                _    ____   ____              _    ____ __  __ _____ \n | \\ | | ___| |_/ ___|  ___ __ _| | ___ _ __     / \\  |  _ \\ / ___|            / \\  / ___|  \\/  | ____|\n |  \\| |/ _ \\ __\\___ \\ / __/ _` | |/ _ \\ '__|   / _ \\ | | | | |      _____    / _ \\| |   | |\\/| |  _|  \n | |\\  |  __/ |_ ___) | (_| (_| | |  __/ |     / ___ \\| |_| | |___  |_____|  / ___ \\ |___| |  | | |___ \n |_| \\_|\\___|\\__|____/ \\___\\__,_|_|\\___|_|    /_/   \\_\\____/ \\____|         /_/   \\_\\____|_|  |_|_____|\n                                                                                                       "
 
 var configSearchPaths = []string{
 	filepath.Join("/", "etc", "corelayer", "lens"),
 	filepath.Join("/nsconfig", "ssl", "LENS"),
 	filepath.Join("$HOME", ".lens"),
 	filepath.Join("$PWD"),
+	filepath.Join("%APPDATA%", "corelayer", "lens"),
+	filepath.Join("%LOCALAPPDATA%", "corelayer", "lens"),
+	filepath.Join("%PROGRAMDATA%", "corelayer", "lens"),
 }
 
 func main() {
@@ -51,7 +51,7 @@ func run() error {
 	var configSearchPathFlag []string
 	var logLevelFlag string
 
-	app := clapp.NewApplication("lens", "Let's Encrypt for NetScaler ADC", "", "")
+	app := clapp.NewApplication("lens", global.LENS_TITLE, global.LENS_BANNER+"\n\n"+global.LENS_TITLE, "")
 	app.Command.PersistentFlags().StringVarP(&configFileFlag, "file", "f", "config.yaml", "config file name")
 	app.Command.PersistentFlags().StringVarP(&configPathFlag, "path", "p", "", "config file path, do not use with -s")
 	app.Command.PersistentFlags().StringVarP(&logLevelFlag, "loglevel", "l", "", "log level")
@@ -67,7 +67,7 @@ func run() error {
 	}
 
 	app.RegisterCommands([]clapp.Commander{
-		daemon.Command,
+		// daemon.Command,
 		// configure.Command,
 		request.Command,
 	})

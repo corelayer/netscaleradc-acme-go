@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #/*
 # * Copyright 2023 CoreLayer BV
 # *
@@ -14,28 +15,25 @@
 # *    limitations under the License.
 # */
 
-archive:
-	bash scripts/archive.sh
-build:
-	bash scripts/build.sh
+clear
+echo "Building netscaleradc-acme"
+echo "--------------------------"
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+DIR="$( cd -P "$( dirname "$SOURCE" )/.." && pwd )"
 
-build-apple:
-	bash scripts/build-applesilicon.sh
+cd "$DIR" || exit
 
-build-darwin:
-	bash scripts/build-darwin.sh
+echo "Cleaning up previous builds and packages"
+rm -rf output/bin/*
+rm -rf output/pkg/*
+rm -rf output/archives/*
 
-clean:
-	bash scripts/clean.sh
-
-coverage:
-	bash scripts/coverage.sh
-
-run:
-	go run cmd/lens/main.go
-
-run-daemon:
-	go run cmd/lens/main.go daemon
-
-test:
-	bash scripts/test.sh
+INPUT="cmd/lens/main.go"
+OUTBASE="output/bin"
+OUTFILE="lens"
+GOOS=darwin
+GOARCH=arm64
+OUTEXT=""
+echo " - $GOOS-$GOARCH --> $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT"
+GOOS=$GOOS GOARCH=$GOARCH go build -o $OUTBASE/$GOOS/$GOARCH/$OUTFILE$OUTEXT $INPUT
