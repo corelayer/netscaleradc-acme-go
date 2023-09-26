@@ -377,8 +377,8 @@ We need to specify the organization and environment name to select which NetScal
 ##### Challenge
 ###### Service
 You can either choose one of the pre-defined services, or specify your own ACME Service URL.
-- LE_STAGING: Let's Encrypt STAGING Environment
-- LE_PRODUCTION: Let's Encrypt PRODUCTION Environment
+- ```LE_STAGING```: Let's Encrypt STAGING Environment
+- ```LE_PRODUCTION```: Let's Encrypt PRODUCTION Environment
 
 ###### Type
 We currently either support ```http-01``` or ```dns-01``` as the challenge type.
@@ -387,20 +387,20 @@ We currently either support ```http-01``` or ```dns-01``` as the challenge type.
 This tool is primarily meant for use with NetScaler ADC, both for the certificate request as for the installation of the certificate.
 However, we do support external DNS providers.
 
-- netscaler-http-global
-- netscaler-adns
+- ```netscaler-http-global```
+- ```netscaler-adns```
 
 **Other DNS providers are to be enabled in a future releases.**
 
 ###### DisableDnsPropagationCheck
-In case you are executing a challenge from within a network that has split-DNS (different DNS responses on the internet compared to the local network), you might need to enable **DisableDnsPropagationCheck**.</br>When enabled, lens will not wait for any propagation to happen, nor will it check if propagation has succeeded in orde for it to complete the challenge.
+In case you are executing a challenge from within a network that has split-DNS (different DNS responses on the internet compared to the local network), you might need to set ```DisableDnsPropagationCheck``` to ```true```.</br>When enabled, lens will not wait for any propagation to happen, nor will it check if propagation has succeeded in orde for it to complete the challenge.
 
 
 #### Installation
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
 This is especially useful when having SAN-certificates or wildard certificates, so they can be bound appropriately on different NetScaler environments.
 
-**Note that you cannot have the option "replaceDefaultCertificate" set to ```true``` while having endpoints defined under "sslVserver" and/or "sslServices"**
+**Note that you cannot have the option ```replaceDefaultCertificate``` set to ```true``` while having endpoints defined under "sslVserver" and/or "sslServices"**
 
 #### Examples
 - [Simple certificate](#simple-certificate)
