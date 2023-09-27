@@ -10,6 +10,9 @@ Let's Encrypt for NetScaler ADC (aka LENS) is a tool which allows you to generat
   - added -e / --envFile
   - This also frees up the -f parameter to be changed later to a --force parameter
 
+- Added provider parameters to global configuration file for use with DNS providers which require environment variables to be set when being used.
+  - For more information on available providers, see [https://go-acme.github.io/lego/dns/](https://go-acme.github.io/lego/dns/)
+
 ## System requirements
 ### Operating system
 We provide binaries for different operating systems and architectures:
