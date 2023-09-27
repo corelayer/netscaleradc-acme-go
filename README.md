@@ -3,6 +3,13 @@
 
 Let's Encrypt for NetScaler ADC (aka LENS) is a tool which allows you to generate certificates based on the well-known ACME protocol. It is based on the fantastic library from the people at [https://github.com/go-acme/lego](https://github.com/go-acme/lego) to provide the functionality to talk to different DNS providers, but now also NetScaler ADC.
 
+## Changelog
+### v0.3.1
+- Changed global application flags to accomodate a global configuration file and environment variables file flag
+  - changed -f / --config to -c / --configFile
+  - added -e / --envFile
+  - This also frees up the -f parameter to be changed later to a --force parameter
+
 ## System requirements
 ### Operating system
 We provide binaries for different operating systems and architectures:
@@ -30,7 +37,7 @@ As such, it is currently not possible to run the tool on a NetScaler directly.
 
 ### Certificate Authorities
 
-By default we support both staging and production environments for Let's Encrypt.
+By default, we support both staging and production environments for Let's Encrypt.
 Lens is designed to work with other certificate authorities who provide access through the ACME protocol.
 
 *If you are a user of other ACME-protocol based services, such as Sectigo, please reach out so we can ensure maximum compatibility!*
@@ -57,6 +64,12 @@ If you run the binary natively on NetScaler ADC:
 
 ## Running Lens
 ```
+    __    _______   _______
+   / /   / ____/ | / / ___/
+  / /   / __/ /  |/ /\__ \
+ / /___/ /___/ /|  /___/ /
+/_____/_____/_/ |_//____/
+
 Let's Encrypt for NetScaler ADC
 
 Usage:
@@ -68,14 +81,18 @@ Available Commands:
   request     Request mode
 
 Flags:
-  -f, --file string       config file name (default "config.yaml")
-  -h, --help              help for lens
-  -l, --loglevel string   log level
-  -p, --path string       config file path, do not use with -s
-  -s, --search strings    config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD])
+  -c, --configFile string   config file name (default "config.yaml")
+  -e, --envFile string      environment file name (default "variables.env")
+  -h, --help                help for lens
+  -l, --loglevel string     log level
+  -p, --path string         config file path, do not use with -s
+  -s, --search strings      config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD,%APPDATA%/corelayer/lens,%LOCALAPPDATA%/corelayer/lens,%PROGRAMDATA%/corelayer/lens])
 
 Use "lens [command] --help" for more information about a command.
 ```
+
+**NOTE: do not use the same file name for both the config file and environment variables file, e.g. ```config.yaml``` and ```config.env```, unless you specify the path of the config files using the ```-p``` flag**<br/>
+Due to a bug in [spf13/viper](https://github.com/spf13/viper/issues/1163), the wrong file might get loaded in memory, causing an unexpected application exit.
 
 By default, lens will be looking for a global configuration file in the following paths:
 - /etc/corelayer/lens
@@ -87,7 +104,8 @@ By default, lens will be looking for a global configuration file in the followin
 - %PROGRAMDATA%
 
 Global Flags:
-- -f / --file: allows you to specify a custom global configuration file
+- -c / --configFile: allows you to specify a custom global configuration file
+- -e / --envFile: allows you to specify an environment variables file
 - -p / --path: allows you to specify to path for the global configuration file
 - -s / --search: allows you to specify multiple search paths
 
@@ -95,21 +113,28 @@ Global Flags:
 
 ### Request mode
 ```
+    __    _______   _______
+   / /   / ____/ | / / ___/
+  / /   / __/ /  |/ /\__ \
+ / /___/ /___/ /|  /___/ /
+/_____/_____/_/ |_//____/
+
 Let's Encrypt for NetScaler ADC - Request Mode
 
 Usage:
   lens request [flags]
 
 Flags:
-  -a, --all           request all (default true)
+  -a, --all           request all
   -h, --help          help for request
   -n, --name string   request name
 
 Global Flags:
-  -f, --file string       config file name (default "config.yaml")
-  -l, --loglevel string   log level
-  -p, --path string       config file path, do not use with -s
-  -s, --search strings    config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD])
+  -c, --configFile string   config file name (default "config.yaml")
+  -e, --envFile string      environment file name (default "variables.env")
+  -l, --loglevel string     log level
+  -p, --path string         config file path, do not use with -s
+  -s, --search strings      config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD,%APPDATA%/corelayer/lens,%LOCALAPPDATA%/corelayer/lens,%PROGRAMDATA%/corelayer/lens])
 ```
 
 You can either request one single certificate or all configured certificates at once.

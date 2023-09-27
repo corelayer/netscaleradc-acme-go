@@ -43,4 +43,5 @@ type Challenge struct {
 	Type                       string `json:"type" yaml:"type" mapstructure:"type"`
 	Provider                   string `json:"provider" yaml:"provider" mapstructure:"provider"`
 	DisableDnsPropagationCheck bool   `json:"disableDnsPropagationCheck" yaml:"disableDnsPropagationCheck" mapstructure:"disableDnsPropagationCheck"`
+	ProviderParameters         string `json:"providerParameters" yaml:"providerParameters" mapstructure:"providerParameters"`
 }

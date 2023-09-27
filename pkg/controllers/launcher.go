@@ -44,21 +44,23 @@ const (
 )
 
 type Launcher struct {
-	loader        Loader
-	organizations []registry.Organization
-	users         map[string]*models.User
-	timestamp     string
+	loader         Loader
+	organizations  []registry.Organization
+	users          map[string]*models.User
+	providerParams []config.ProviderParameters
+	timestamp      string
 }
 
-func NewLauncher(path string, organizations []registry.Organization, users []config.AcmeUser) (*Launcher, error) {
+func NewLauncher(path string, organizations []registry.Organization, users []config.AcmeUser, params []config.ProviderParameters) (*Launcher, error) {
 	var (
 		err    error
 		output *Launcher
 	)
 	output = &Launcher{
-		organizations: organizations,
-		loader:        NewLoader(path),
-		timestamp:     time.Now().Format("20060102150405"),
+		loader:         NewLoader(path),
+		organizations:  organizations,
+		providerParams: params,
+		timestamp:      time.Now().Format("20060102150405"),
 	}
 	output.users, err = output.initialize(users)
 	if err != nil {
@@ -205,6 +207,27 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	provider, err = cert.Request.GetChallengeProvider(environment, l.timestamp)
 	if err != nil {
 		return nil, err
+	}
+
+	var providerParams config.ProviderParameters
+	if cert.Request.Challenge.ProviderParameters != "" {
+		providerParams, err = l.getProviderParameters(cert.Request.Challenge.ProviderParameters)
+		if err != nil {
+			return nil, err
+		}
+
+		err = providerParams.ApplyEnvironmentVariables()
+		if err != nil {
+			return nil, err
+		}
+
+		defer func() {
+			err = providerParams.ResetEnvironmentVariables()
+		}()
+		if err != nil {
+			return nil, err
+		}
+
 	}
 
 	switch cert.Request.Challenge.Type {
@@ -482,4 +505,13 @@ func (l Launcher) getEnvironment(organization string, environment string) (regis
 		}
 	}
 	return registry.Environment{}, fmt.Errorf("could not find environment %s for organization %s", environment, organization)
+}
+
+func (l Launcher) getProviderParameters(name string) (config.ProviderParameters, error) {
+	for _, p := range l.providerParams {
+		if name == p.Name {
+			return p, nil
+		}
+	}
+	return config.ProviderParameters{}, fmt.Errorf("could not find provider parameters for %s", name)
 }
