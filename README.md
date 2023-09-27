@@ -185,6 +185,8 @@ You can reference the environment variables in the global configuration file.</b
 If we take the preceding sections as an example, we have LENS_NAME or NAME as an environment variable.</br>
 We can now use that variable as a reference using ${LENS_NAME} as the value of a parameter.
 
+See [Multiple environments - with environment variable file](#multiple-environments---with-environment-variable-file) for more information.
+
 ### Configuration mode
 
 **Not implemented**
@@ -243,6 +245,7 @@ providerParameters:
 - [High-Availability pair - using SNIP](#high-availability-pair---using-snip)
 - [High-Availability pair - using NSIP](#high-availability-pair---using-nsip)
 - [Multiple environments](#multiple-environments)
+- [Multiple environments - with environment variable file](#multiple-environments---with-environment-variable-file)
 
 ##### Standalone - using SNIP
 Global configuration:
