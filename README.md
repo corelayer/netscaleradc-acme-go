@@ -151,6 +151,40 @@ Flags:
 
 The global flags are still applicable and can be used accordingly.
 
+### Environment variables
+
+Environment variables can be set in two ways:
+- Directly on the command-line
+- Using an .env file
+
+**NOTE: both can be used at the same time**
+
+#### CLI
+
+Always prefix the environment variable with ```LENS_```.
+Other environment variables will not be used to replace variable placeholders in the config files.
+
+Example:<br/>
+```LENS_NAME=corelayer_acme lens request -a```
+
+#### Environment Variables File
+
+You do not need to prefix the environment variable in the file.
+However, when referencing the variable in a config file, you **must** prefix
+
+Example: ```variables.env```
+```text
+NAME=corelayer_acme
+```
+
+CLI: ```lens request -e variables.env```
+
+#### Referencing environment variables
+
+You can reference the environment variables in the global configuration file.</br>
+If we take the preceding sections as an example, we have LENS_NAME or NAME as an environment variable.</br>
+We can now use that variable as a reference using ${LENS_NAME} as the value of a parameter.
+
 ### Configuration mode
 
 **Not implemented**
@@ -194,6 +228,13 @@ organizations:
 acmeUsers:
   - name: <acme username>
     email: <acme e-mail address>
+providerParameters:
+  - name: <name for the set of parameters>
+    variables:
+      - name: <environment variable name>
+        value: <environment variable value>
+      - name: <environment variable name>
+        value: <environment variable value>
 ```
 
 #### Examples
@@ -364,6 +405,60 @@ acmeUsers:
     email: fake@email.com
 ```
 
+##### Multiple environments - with environment variable file
+Environment variables file:
+```text
+NAME1=corelayer_acme1
+DEV_PASS=secretPassword
+TST_PASS=anotherPassword
+```
+
+Global configuration:
+```yaml
+configPath: conf.d
+organizations:
+  - name: corelayer
+    environments:
+      - name: development
+        type: hapair
+        nodes:
+          - name: vpx-dev-001
+            address: 192.168.1.11
+          - name: vpx-dev-002
+            address: 192.168.1.12
+        credentials:
+          username: nsroot
+          password: ${LENS_DEV_PASS}
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+      - name: test
+        type: hapair
+        management:
+          name: vpx-tst
+          address: vpx-tst.test.local
+        nodes:
+          - name: vpx-tst-001
+            address: 192.168.2.11
+          - name: vpx-tst-002
+            address: 192.168.2.12
+        credentials:
+          username: nsroot
+          password: {LENS_TST_PASS}
+        connectionSettings:
+          useSsl: true
+          timeout: 3000
+          validateServerCertificate: false
+          logTlsSecrets: false
+          autoLogin: false
+acmeUsers:
+  - name: ${LENS_NAME1}
+    email: fake@email.com
+```
+
 ### Certificate configuration
 ```yaml
 name: <name>
@@ -375,6 +470,7 @@ request:
     service: LE_STAGING | LE_PRODUCTION | <custom url>
     type: <http-01 | dns-01>
     provider: <netscaler-http-global | netscaler-adns | <name of dns provider>
+    providerParameters: <providerParameters name>
     disableDnsPropagationCheck: <true | false>
   keyType: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
   content:
