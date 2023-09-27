@@ -37,15 +37,22 @@ var Command = clapp.Command{
 			var err error
 
 			// Get flag values from command
-			var file string
+			var configFile string
+			var envFile string
 			var path string
 			var search []string
 			var name string
 			var all bool
 
-			file, err = cmd.Flags().GetString("file")
+			configFile, err = cmd.Flags().GetString("configFile")
 			if err != nil {
-				slog.Error("could not find flag", "flag", "file")
+				slog.Error("could not find flag", "flag", "configFile")
+				return err
+			}
+
+			envFile, err = cmd.Flags().GetString("envFile")
+			if err != nil {
+				slog.Error("could not find flag", "flag", "envFile")
 				return err
 			}
 
@@ -99,20 +106,37 @@ var Command = clapp.Command{
 			logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level}))
 			slog.SetDefault(logger)
 
-			// Setup application configuration
-			clappConfig := clapp.NewConfiguration(file, path, search)
-			viper := clappConfig.GetViper()
+			// Setup application environment variables
+			appEnvFile := clapp.NewConfiguration(envFile, path, search)
+			viperEnv := appEnvFile.GetViper()
+			viperEnv.SetEnvPrefix("lens")
+			viperEnv.AutomaticEnv()
+			err = viperEnv.ReadInConfig()
+			if err != nil {
+				slog.Error("could not read configuration", "file", viperEnv.ConfigFileUsed(), "error", err)
+				return err
+			}
 
-			err = viper.ReadInConfig()
+			// Setup application configuration
+			appConfigFile := clapp.NewConfiguration(configFile, path, search)
+			viperFile := appConfigFile.GetViper()
+
+			err = viperFile.ReadInConfig()
 			if err != nil {
 				slog.Error("could not read configuration", "error", err)
 				return err
 			}
 
 			var appConfig config.Application
-			err = viper.Unmarshal(&appConfig)
+			err = viperFile.Unmarshal(&appConfig)
 			if err != nil {
 				slog.Error("could not unmarshal configuration", "error", err)
+				return err
+			}
+
+			err = appConfig.UpdateEnvironmentVariables(viperEnv)
+			if err != nil {
+				slog.Error("could not update environment variables in config", "error", err)
 				return err
 			}
 
