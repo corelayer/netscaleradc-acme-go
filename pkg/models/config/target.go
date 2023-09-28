@@ -16,9 +16,7 @@
 
 package config
 
-type Installation struct {
-	Target                    Target             `json:"target" yaml:"target" mapstructure:"target"`
-	ReplaceDefaultCertificate bool               `json:"replaceDefaultCertificate" yaml:"replaceDefaultCertificate" mapstructure:"replaceDefaultCertificate"`
-	SslVirtualServers         []sslVirtualServer `json:"sslVirtualServers" yaml:"sslVirtualServers" mapstructure:"sslVirtualServers"`
-	SslServices               []sslService       `json:"sslServices" yaml:"sslServices" mapstructure:"sslServices"`
+type Target struct {
+	Organization string `json:"organization" yaml:"organization" mapstructure:"organization"`
+	Environment  string `json:"environment" yaml:"environment" mapstructure:"environment"`
 }

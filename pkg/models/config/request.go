@@ -35,13 +35,12 @@ const (
 )
 
 type Request struct {
-	Organization string    `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Environment  string    `json:"environment" yaml:"environment" mapstructure:"environment"`
-	AcmeUser     string    `json:"acmeUser" yaml:"acmeUser" mapstructure:"acmeUser"`
-	Challenge    Challenge `json:"challenge" yaml:"challenge" mapstructure:"challenge"`
-	KeyType      string    `json:"keyType" yaml:"keyType" mapstructure:"keyType"`
-	Content      Content   `json:"content" yaml:"content" mapstructure:"content"`
-	basePath     string
+	Target    Target    `json:"target" yaml:"target" mapstructure:"target"`
+	AcmeUser  string    `json:"acmeUser" yaml:"acmeUser" mapstructure:"acmeUser"`
+	Challenge Challenge `json:"challenge" yaml:"challenge" mapstructure:"challenge"`
+	KeyType   string    `json:"keyType" yaml:"keyType" mapstructure:"keyType"`
+	Content   Content   `json:"content" yaml:"content" mapstructure:"content"`
+	basePath  string
 }
 
 func (r Request) GetServiceUrl() string {

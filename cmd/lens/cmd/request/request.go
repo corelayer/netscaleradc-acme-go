@@ -87,7 +87,6 @@ var Command = clapp.Command{
 				return err
 			}
 
-			// TODO UPDATE LOGLEVEL HANDLING
 			var level slog.Leveler
 			switch logLevelFlag {
 			case "error":

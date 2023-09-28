@@ -16,8 +16,11 @@
 
 package config
 
+import "github.com/go-acme/lego/v4/certificate"
+
 type Certificate struct {
-	Name         string         `json:"name" yaml:"name" mapstructure:"name"`
-	Request      Request        `json:"request" yaml:"request" mapstructure:"request"`
-	Installation []Installation `json:"installation" yaml:"installation" mapstructure:"installation"`
+	Name         string                `json:"name" yaml:"name" mapstructure:"name"`
+	Request      Request               `json:"request" yaml:"request" mapstructure:"request"`
+	Installation []Installation        `json:"installation" yaml:"installation" mapstructure:"installation"`
+	Resource     *certificate.Resource `json:"-" yaml:"-" mapstructure:"-"`
 }
