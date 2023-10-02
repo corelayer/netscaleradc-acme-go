@@ -57,8 +57,14 @@ func (r Request) GetServiceUrl() string {
 func (r Request) GetChallengeProvider(environment registry.Environment, timestamp string) (challenge.Provider, error) {
 	switch r.Challenge.Provider {
 	case netscaleradc.ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL:
+		if environment.Name == "env" {
+			return netscaleradc.NewGlobalHttpProviderFromEnv(10, timestamp)
+		}
 		return netscaleradc.NewGlobalHttpProvider(environment, 10, timestamp)
 	case netscaleradc.ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS:
+		if environment.Name == "env" {
+			return netscaleradc.NewADnsProviderFromEnv(10)
+		}
 		return netscaleradc.NewADnsProvider(environment, 10)
 	case ACME_CHALLENGE_PROVIDER_WEBSERVER:
 		return http01.NewProviderServer("", "12346"), nil

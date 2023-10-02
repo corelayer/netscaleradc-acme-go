@@ -33,19 +33,67 @@ const (
 
 // ADnsProvider manages ACME requests for NetScaler ADC Authoritative DNS service
 type ADnsProvider struct {
-	nitroClient *nitro.Client
-	dnsTxtRec   *controllers.DnsTxtRecController
+	client    *nitro.Client
+	dnsTxtRec *controllers.DnsTxtRecController
 
 	maxRetries int
 }
 
-// NewADnsProvider returns a HTTPProvider instance with a configured list of hosts
-func NewADnsProvider(environment registry.Environment, maxRetries int) (*ADnsProvider, error) {
-	c := &ADnsProvider{
-		maxRetries: maxRetries,
+// NewADnsProvider returns an Authoritative DNS Provider from a configured list of hosts
+func NewADnsProvider(e registry.Environment, maxRetries int) (*ADnsProvider, error) {
+	var (
+		err error
+		c   *nitro.Client
+		p   *ADnsProvider
+	)
+
+	slog.Debug("ns acme provider: initialize from configuration", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", e.Name)
+	c, err = e.GetPrimaryNitroClient()
+	if err != nil {
+		slog.Error("ns acme provider: client initialization from configuration failed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", e.Name, "client", c.Name, "error", err)
+		return nil, fmt.Errorf("ns acme %s provider initialization from configuration failed: %w", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, err)
 	}
 
-	return c, c.initialize(environment)
+	p = &ADnsProvider{
+		client:     c,
+		maxRetries: maxRetries,
+	}
+	p.initialize()
+
+	slog.Debug("ns acme provider: initialization from configuration completed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", e.Name)
+	return p, nil
+}
+
+// NewADnsProvider returns an Authoritative DNS Provider from environment variable settings
+func NewADnsProviderFromEnv(maxRetries int) (*ADnsProvider, error) {
+	var (
+		err error
+		c   *Config
+		n   *nitro.Client
+		p   *ADnsProvider
+	)
+
+	slog.Debug("ns acme provider: initialize from environment", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", "os")
+	c, err = NewConfig()
+	if err != nil {
+		slog.Error("ns acme provider: client initialization from environment failed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", "os", "client", c.Name, "error", err)
+		return nil, err
+	}
+
+	n, err = c.GetClient()
+	if err != nil {
+		slog.Error("ns acme provider: initialization from environment failed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", "os", "error", err)
+		return nil, err
+	}
+
+	p = &ADnsProvider{
+		client:     n,
+		maxRetries: maxRetries,
+	}
+	p.initialize()
+
+	slog.Debug("ns acme provider: initialization from environment completed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", "os")
+	return p, nil
 }
 
 // Present the ACME challenge to the provider.
@@ -110,16 +158,6 @@ func (p *ADnsProvider) CleanUp(domain string, token string, keyAuth string) erro
 	return nil
 }
 
-func (p *ADnsProvider) initialize(e registry.Environment) error {
-	slog.Debug("ns acme adns provider initialization", "environment", e.Name)
-	client, err := e.GetPrimaryNitroClient()
-	if err != nil {
-		slog.Error("ns acme adns provider initialization failed", "error", err)
-		return fmt.Errorf("ns acme adns provider initialization failed: %w", err)
-	}
-
-	p.nitroClient = client
-	p.dnsTxtRec = controllers.NewDnsTxtRecController(client)
-	slog.Debug("ns acme adns provider initialization completed")
-	return nil
+func (p *ADnsProvider) initialize() {
+	p.dnsTxtRec = controllers.NewDnsTxtRecController(p.client)
 }

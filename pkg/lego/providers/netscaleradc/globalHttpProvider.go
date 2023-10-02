@@ -33,7 +33,7 @@ const (
 
 // GlobalHttpProvider manages ACME requests for NetScaler ADC using globally bound responder policies
 type GlobalHttpProvider struct {
-	nitroClient    *nitro.Client
+	client         *nitro.Client
 	rsaController  *controllers.ResponderActionController
 	rspController  *controllers.ResponderPolicyController
 	rspbController *controllers.ResponderGlobalResponderPolicyBindingController
@@ -47,13 +47,62 @@ type GlobalHttpProvider struct {
 }
 
 // NewGlobalHttpProvider returns a HTTPProvider instance with a configured list of hosts
-func NewGlobalHttpProvider(environment registry.Environment, maxRetries int, timestamp string) (*GlobalHttpProvider, error) {
-	c := &GlobalHttpProvider{
+func NewGlobalHttpProvider(e registry.Environment, maxRetries int, timestamp string) (*GlobalHttpProvider, error) {
+	var (
+		err error
+		c   *nitro.Client
+		p   *GlobalHttpProvider
+	)
+
+	slog.Debug("ns acme provider: initialize from configuration", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL, "environment", e.Name)
+	c, err = e.GetPrimaryNitroClient()
+	if err != nil {
+		slog.Error("ns acme provider: client initialization from configuration failed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL, "environment", e.Name, "client", c.Name, "error", err)
+		return nil, fmt.Errorf("ns acme %s provider initialization from configuration failed: %w", ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL, err)
+	}
+
+	p = &GlobalHttpProvider{
+		client:     c,
 		maxRetries: maxRetries,
 		timestamp:  timestamp,
 	}
+	p.initialize()
 
-	return c, c.initialize(environment)
+	slog.Debug("ns acme provider: initialization from configuration completed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL, "environment", e.Name)
+	return p, nil
+}
+
+// NewGlobalHttpProvider returns an HTTPProvider instance from environment variable settings
+func NewGlobalHttpProviderFromEnv(maxRetries int, timestamp string) (*GlobalHttpProvider, error) {
+	var (
+		err error
+		c   *Config
+		n   *nitro.Client
+		p   *GlobalHttpProvider
+	)
+
+	slog.Debug("ns acme provider: initialize from configuration", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL, "environment", "os")
+	c, err = NewConfig()
+	if err != nil {
+		slog.Error("ns acme provider: client initialization from environment failed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", "os", "client", c.Name, "error", err)
+		return nil, err
+	}
+
+	n, err = c.GetClient()
+	if err != nil {
+		slog.Error("ns acme provider: initialization from environment failed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", "os", "error", err)
+		return nil, err
+	}
+
+	p = &GlobalHttpProvider{
+		client:     n,
+		maxRetries: maxRetries,
+		timestamp:  timestamp,
+	}
+	p.initialize()
+
+	slog.Debug("ns acme provider: initialization from environment completed", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_ADNS, "environment", "os")
+	return p, nil
 }
 
 // Present the ACME challenge to the provider before validation
@@ -183,7 +232,7 @@ func (p *GlobalHttpProvider) getPolicyBindingPriorities() ([]string, error) {
 	}
 
 	// Execute Nitro Request
-	bindings, err = nitro.ExecuteNitroRequest[config.ResponderGlobalResponderPolicyBinding](p.nitroClient, nitroRequest)
+	bindings, err = nitro.ExecuteNitroRequest[config.ResponderGlobalResponderPolicyBinding](p.client, nitroRequest)
 	if err != nil {
 		slog.Error("ns acme request: could not retrieve existing priorities", "provider", ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL)
 		return nil, fmt.Errorf("ns acme request: could not retrieve existing priorities: %w", err)
@@ -264,19 +313,10 @@ func (p *GlobalHttpProvider) getResponderPolicyName(domain string) string {
 	return p.rspPrefix + domain + "_" + p.timestamp
 }
 
-func (p *GlobalHttpProvider) initialize(e registry.Environment) error {
-	slog.Debug("ns acme netscaler-http-global provider initialization", "environment", e.Name)
-	client, err := e.GetPrimaryNitroClient()
-	if err != nil {
-		slog.Error("ns acme netscaler-http-global provider initialization failed", "error", err)
-		return fmt.Errorf("ns acme netscaler-http-global provider initialization failed: %w", err)
-	}
-
-	slog.Debug("initialize nitro controllers for responder functionality")
-	p.nitroClient = client
-	p.rsaController = controllers.NewResponderActionController(client)
-	p.rspController = controllers.NewResponderPolicyController(client)
-	p.rspbController = controllers.NewResponderGlobalResponderPolicyBindingController(client)
+func (p *GlobalHttpProvider) initialize() {
+	p.rsaController = controllers.NewResponderActionController(p.client)
+	p.rspController = controllers.NewResponderPolicyController(p.client)
+	p.rspbController = controllers.NewResponderGlobalResponderPolicyBindingController(p.client)
 
 	if p.timestamp == "" {
 		p.timestamp = time.Now().Format("20060102150405")
@@ -284,7 +324,4 @@ func (p *GlobalHttpProvider) initialize(e registry.Environment) error {
 	p.rspbBindtype = "REQ_OVERRIDE"
 	p.rsaPrefix = "RSA_LENS_"
 	p.rspPrefix = "RSP_LENS_"
-
-	slog.Debug("ns acme netscaler-http-global provider initialization completed", "environment", e.Name)
-	return nil
 }

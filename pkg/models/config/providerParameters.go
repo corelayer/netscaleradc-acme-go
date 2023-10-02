@@ -16,7 +16,10 @@
 
 package config
 
-import "os"
+import (
+	"log/slog"
+	"os"
+)
 
 type ProviderParameters struct {
 	Name      string                `json:"name" yaml:"name" mapstructure:"name"`
@@ -25,22 +28,28 @@ type ProviderParameters struct {
 
 func (p ProviderParameters) ApplyEnvironmentVariables() error {
 	var err error
+	slog.Debug("applying provider parameters", "name", p.Name)
 	for _, v := range p.Variables {
+		slog.Debug("applying provider parameter", "name", p.Name, "variable", v.Name)
 		err = os.Setenv(v.Name, v.Value)
 		if err != nil {
 			return err
 		}
 	}
+	slog.Debug("applying provider parameters completed", "name", p.Name)
 	return nil
 }
 
 func (p ProviderParameters) ResetEnvironmentVariables() error {
 	var err error
+	slog.Debug("resetting provider parameters", "name", p.Name)
 	for _, v := range p.Variables {
+		slog.Debug("resetting provider parameter", "name", p.Name, "variable", v.Name)
 		err = os.Unsetenv(v.Name)
 		if err != nil {
 			return err
 		}
 	}
+	slog.Debug("resetting provider parameters completed", "name", p.Name)
 	return nil
 }
