@@ -36,7 +36,7 @@ const (
 
 type Request struct {
 	Target    Target    `json:"target" yaml:"target" mapstructure:"target"`
-	AcmeUser  string    `json:"acmeUser" yaml:"acmeUser" mapstructure:"acmeUser"`
+	User      string    `json:"user" yaml:"user" mapstructure:"user"`
 	Challenge Challenge `json:"challenge" yaml:"challenge" mapstructure:"challenge"`
 	KeyType   string    `json:"keyType" yaml:"keyType" mapstructure:"keyType"`
 	Content   Content   `json:"content" yaml:"content" mapstructure:"content"`

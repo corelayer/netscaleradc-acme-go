@@ -16,7 +16,8 @@
 
 package config
 
-type AcmeUser struct {
-	Name  string `json:"name" yaml:"name" mapstructure:"name"`
-	Email string `json:"email" yaml:"email" mapstructure:"email"`
+type User struct {
+	Name                   string                 `json:"name" yaml:"name" mapstructure:"name"`
+	Email                  string                 `json:"email" yaml:"email" mapstructure:"email"`
+	ExternalAccountBinding ExternalAccountBinding `json:"eab" yaml:"eab" mapstructure:"eab"`
 }

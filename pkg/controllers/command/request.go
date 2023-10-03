@@ -33,7 +33,7 @@ func (c Request) Execute() error {
 	var (
 		launcher *controllers.Launcher
 	)
-	launcher = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.AcmeUsers, c.Config.Parameters)
+	launcher = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users, c.Config.Parameters)
 
 	if c.Request != "" {
 		return launcher.Request(c.Request)
