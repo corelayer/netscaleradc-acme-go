@@ -47,7 +47,7 @@ const (
 type Launcher struct {
 	loader               Loader
 	organizations        []registry.Organization
-	users                []config.AcmeUser
+	users                []config.User
 	providerParams       []config.ProviderParameters
 	timestamp            string
 	providerChannels     map[string]chan config.Certificate
@@ -56,10 +56,10 @@ type Launcher struct {
 	channelMapMutex      *sync.RWMutex
 	registrationMutex    *sync.Mutex
 	userMutex            *sync.Mutex
-	accounts             map[models.UserServiceLink]*models.User
+	accounts             map[models.UserServiceLink]*models.Account
 }
 
-func NewLauncher(path string, organizations []registry.Organization, users []config.AcmeUser, params []config.ProviderParameters) *Launcher {
+func NewLauncher(path string, organizations []registry.Organization, users []config.User, params []config.ProviderParameters) *Launcher {
 	return &Launcher{
 		loader:               NewLoader(path),
 		organizations:        organizations,
@@ -72,7 +72,7 @@ func NewLauncher(path string, organizations []registry.Organization, users []con
 		channelMapMutex:      &sync.RWMutex{},
 		registrationMutex:    &sync.Mutex{},
 		userMutex:            &sync.Mutex{},
-		accounts:             make(map[models.UserServiceLink]*models.User),
+		accounts:             make(map[models.UserServiceLink]*models.Account),
 	}
 }
 
@@ -155,7 +155,7 @@ func (l Launcher) processCertificates(certs map[string]config.Certificate) error
 
 	// Push certificates to their respective provider channel
 	for _, c := range certs {
-		slog.Info("process certificate", "certificate", c.Name, "provider", c.Request.Challenge.Provider)
+		slog.Debug("process certificate", "certificate", c.Name, "provider", c.Request.Challenge.Provider)
 		l.channelMapMutex.RLock()
 		l.providerChannels[c.Request.Challenge.Provider] <- c
 		l.channelMapMutex.RUnlock()
@@ -196,7 +196,7 @@ func (l Launcher) certificateProviderProcessor(p string, ch <-chan config.Certif
 
 	defer wg.Done()
 
-	slog.Info("launching provider processor", "provider", p)
+	slog.Debug("launching provider processor", "provider", p)
 	for r := range ch {
 		slog.Debug("provider sequence started for certificate", "provider", p, "certificate", r.Name)
 		r.Resource, err = l.executeAcmeRequest(r)
@@ -213,7 +213,7 @@ func (l Launcher) certificateProviderProcessor(p string, ch <-chan config.Certif
 		}
 		slog.Debug("provider sequence completed for certificate", "provider", p, "certificate", r.Name)
 	}
-	slog.Info("terminating provider processor", "provider", p)
+	slog.Debug("terminating provider processor", "provider", p)
 }
 
 func (l Launcher) certificateInstallationProcessor(t config.Target, ch <-chan config.Certificate, wg *sync.WaitGroup) {
@@ -223,7 +223,7 @@ func (l Launcher) certificateInstallationProcessor(t config.Target, ch <-chan co
 
 	defer wg.Done()
 
-	slog.Info("launching installation processor", "target", t)
+	slog.Debug("launching installation processor", "target", t)
 	for r := range ch {
 		if r.Resource == nil {
 			l.errorChannel <- fmt.Errorf("no certificate found to install on target %s for %s", t, r.Name)
@@ -239,7 +239,7 @@ func (l Launcher) certificateInstallationProcessor(t config.Target, ch <-chan co
 			}
 		}
 	}
-	slog.Info("terminating installation processor", "target", t)
+	slog.Debug("terminating installation processor", "target", t)
 }
 
 func (l Launcher) errorProcessor(wg *sync.WaitGroup) {
@@ -250,11 +250,11 @@ func (l Launcher) errorProcessor(wg *sync.WaitGroup) {
 	}
 }
 
-func (l Launcher) getAccount(username string, url string) (*models.User, error) {
+func (l Launcher) getAccount(username string, url string) (*models.Account, error) {
 	var (
 		err     error
-		user    config.AcmeUser
-		account *models.User
+		user    config.User
+		account *models.Account
 	)
 	l.userMutex.Lock()
 	usl := models.UserServiceLink{
@@ -265,7 +265,7 @@ func (l Launcher) getAccount(username string, url string) (*models.User, error) 
 	if _, exists := l.accounts[usl]; !exists {
 		user, err = l.getUser(username)
 		slog.Debug("creating user account", "username", username, "service", url)
-		account, err = models.NewUser(user.Email)
+		account, err = models.NewAccount(user.Email, user.ExternalAccountBinding)
 		if err != nil {
 			return nil, fmt.Errorf("could not create user for %s on service %s", username, url)
 		}
@@ -275,31 +275,31 @@ func (l Launcher) getAccount(username string, url string) (*models.User, error) 
 	return l.accounts[usl], nil
 }
 
-func (l Launcher) getUser(username string) (config.AcmeUser, error) {
+func (l Launcher) getUser(username string) (config.User, error) {
 	for _, u := range l.users {
 		if u.Name == username {
 			return u, nil
 		}
 	}
-	return config.AcmeUser{}, fmt.Errorf("user %s does not exist", username)
+	return config.User{}, fmt.Errorf("user %s does not exist", username)
 }
 
 func (l Launcher) getLegoClient(username string, url string, keyType certcrypto.KeyType) (*lego.Client, error) {
 	var (
-		err    error
-		user   *models.User
-		client *lego.Client
+		err     error
+		account *models.Account
+		client  *lego.Client
 	)
 
 	l.registrationMutex.Lock()
 	slog.Debug("locking for acme user account validation", "user", username, "service", url)
-	user, err = l.getAccount(username, url)
+	account, err = l.getAccount(username, url)
 	if err != nil {
 		slog.Debug("could not find user", "username", username, "service", url)
 		return nil, fmt.Errorf("could not find user %s for service %s with message: %w", username, url, err)
 	}
 
-	legoConfig := lego.NewConfig(*user)
+	legoConfig := lego.NewConfig(*account)
 	legoConfig.CADirURL = url
 	legoConfig.Certificate.KeyType = keyType
 
@@ -310,16 +310,30 @@ func (l Launcher) getLegoClient(username string, url string, keyType certcrypto.
 	}
 
 	// Query registration
-	if user.GetRegistration() == nil {
+	if account.GetRegistration() == nil {
 		slog.Debug("register acme account for user", "username", username, "service", url)
 		// New users will need to register
 		var reg *registration.Resource
-		reg, err = client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
+		var emptyEab = config.ExternalAccountBinding{}
+
+		if account.ExternalAccountBinding == emptyEab {
+			reg, err = client.Registration.Register(
+				registration.RegisterOptions{
+					TermsOfServiceAgreed: true,
+				})
+		} else {
+			reg, err = client.Registration.RegisterWithExternalAccountBinding(
+				registration.RegisterEABOptions{
+					TermsOfServiceAgreed: true,
+					Kid:                  account.ExternalAccountBinding.Kid,
+					HmacEncoded:          account.ExternalAccountBinding.HmacEncoded,
+				})
+		}
 		if err != nil {
 			slog.Debug("could not register acme account for user", "username", username, "service", url, "error", err)
 			return nil, fmt.Errorf("could not register user %s for acme request on service %s with message: %w", username, url, err)
 		}
-		user.Registration = reg
+		account.Registration = reg
 	}
 	l.registrationMutex.Unlock()
 	slog.Debug("unlocking for acme user account validation", "user", username, "service", url)
@@ -335,7 +349,7 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	)
 	slog.Info("execute acme request for certificate", "certificate", cert.Name)
 
-	client, err = l.getLegoClient(cert.Request.AcmeUser, cert.Request.GetServiceUrl(), cert.Request.GetKeyType())
+	client, err = l.getLegoClient(cert.Request.User, cert.Request.GetServiceUrl(), cert.Request.GetKeyType())
 	if err != nil {
 		return nil, err
 	}
