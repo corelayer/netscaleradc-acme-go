@@ -66,29 +66,32 @@ func (l Loader) GetAll() (map[string]config.Certificate, error) {
 	return output, nil
 }
 
-func (l Loader) Get(name string) (config.Certificate, error) {
+func (l Loader) Get(name string) (map[string]config.Certificate, error) {
 	var (
 		err    error
 		vipers map[string]*viper.Viper
 		found  bool
-		output config.Certificate
+		cert   config.Certificate
+		output map[string]config.Certificate
 	)
 
 	slog.Debug("loading configurations")
 	vipers, err = l.loadVipers()
 	if err != nil {
-		return config.Certificate{}, err
+		return nil, err
 	}
 
 	slog.Debug("searching available configurations", "config", name)
 	if _, found = vipers[name]; !found {
-		return config.Certificate{}, fmt.Errorf("could not get configuration %s", name)
+		return nil, fmt.Errorf("could not get configuration %s", name)
+	}
+	cert, err = l.loadCertificateConfig(vipers[name])
+	if err != nil {
+		return nil, err
 	}
 
-	output, err = l.loadCertificateConfig(vipers[name])
-	if err != nil {
-		return config.Certificate{}, err
-	}
+	output = make(map[string]config.Certificate)
+	output[cert.Name] = cert
 	return output, nil
 }
 

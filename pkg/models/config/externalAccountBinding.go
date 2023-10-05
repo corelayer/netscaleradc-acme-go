@@ -14,33 +14,9 @@
  *    limitations under the License.
  */
 
-package command
+package config
 
-import (
-	"fmt"
-
-	"github.com/corelayer/netscaleradc-acme-go/pkg/controllers"
-	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
-)
-
-type Request struct {
-	Config     config.Application
-	Request    string
-	RequestAll bool
-}
-
-func (c Request) Execute() error {
-	var (
-		launcher *controllers.Launcher
-	)
-	launcher = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users, c.Config.Parameters)
-
-	if c.Request != "" {
-		return launcher.Request(c.Request)
-	}
-	if c.RequestAll {
-		return launcher.RequestAll()
-
-	}
-	return fmt.Errorf("no valid execution target")
+type ExternalAccountBinding struct {
+	Kid         string `json:"kid" yaml:"kid" mapstructure:"kid"`
+	HmacEncoded string `json:"hmacEncoded" yaml:"hmacEncoded" mapstructure:"hmacEncoded"`
 }

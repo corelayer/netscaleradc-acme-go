@@ -16,30 +16,23 @@
 
 package command
 
-import (
-	"log/slog"
-	"net"
-	"strconv"
-
-	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
-)
-
-type Daemon struct {
-	Config config.Application
-}
-
-func (c Daemon) Execute() error {
-	var (
-		err error
-		// launcher *controllers.Launcher
-	)
-	if _, err = net.Listen("tcp", c.Config.Daemon.Address+":"+strconv.Itoa(c.Config.Daemon.Port)); err != nil {
-		slog.Error("a daemon is already running on the same address")
-		return err
-	}
-	slog.Info("Running daemon", "address", c.Config.Daemon.Address, "port", c.Config.Daemon.Port)
-
-	// launcher, err = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users)
-	// return launcher.RequestAll()
-	return nil
-}
+//
+// type Daemon struct {
+// 	Config config.Application
+// }
+//
+// func (c Daemon) Execute() error {
+// 	var (
+// 		err error
+// 		// launcher *controllers.Launcher
+// 	)
+// 	if _, err = net.Listen("tcp", c.Config.Daemon.Address+":"+strconv.Itoa(c.Config.Daemon.Port)); err != nil {
+// 		slog.Error("a daemon is already running on the same address")
+// 		return err
+// 	}
+// 	slog.Info("Running daemon", "address", c.Config.Daemon.Address, "port", c.Config.Daemon.Port)
+//
+// 	// launcher, err = controllers.NewLauncher(c.Config.ConfigPath, c.Config.Organizations, c.Config.Users)
+// 	// return launcher.RequestAll()
+// 	return nil
+// }

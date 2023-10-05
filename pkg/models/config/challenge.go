@@ -39,7 +39,9 @@ const (
 )
 
 type Challenge struct {
-	Service  string `json:"service" yaml:"service" mapstructure:"service"`
-	Type     string `json:"type" yaml:"type" mapstructure:"type"`
-	Provider string `json:"provider" yaml:"provider" mapstructure:"provider"`
+	Service                    string `json:"service" yaml:"service" mapstructure:"service"`
+	Type                       string `json:"type" yaml:"type" mapstructure:"type"`
+	Provider                   string `json:"provider" yaml:"provider" mapstructure:"provider"`
+	DisableDnsPropagationCheck bool   `json:"disableDnsPropagationCheck" yaml:"disableDnsPropagationCheck" mapstructure:"disableDnsPropagationCheck"`
+	ProviderParameters         string `json:"providerParameters" yaml:"providerParameters" mapstructure:"providerParameters"`
 }

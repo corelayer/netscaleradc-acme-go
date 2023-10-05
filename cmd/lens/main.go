@@ -47,12 +47,14 @@ func run() error {
 	var err error
 
 	var configFileFlag string
+	var envFileFlag string
 	var configPathFlag string
 	var configSearchPathFlag []string
 	var logLevelFlag string
 
 	app := clapp.NewApplication("lens", global.LENS_TITLE, global.LENS_BANNER+"\n\n"+global.LENS_TITLE, "")
-	app.Command.PersistentFlags().StringVarP(&configFileFlag, "file", "f", "config.yaml", "config file name")
+	app.Command.PersistentFlags().StringVarP(&configFileFlag, "configFile", "c", "config.yaml", "config file name")
+	app.Command.PersistentFlags().StringVarP(&envFileFlag, "envFile", "e", "variables.env", "environment file name")
 	app.Command.PersistentFlags().StringVarP(&configPathFlag, "path", "p", "", "config file path, do not use with -s")
 	app.Command.PersistentFlags().StringVarP(&logLevelFlag, "loglevel", "l", "", "log level")
 	app.Command.PersistentFlags().StringSliceVarP(&configSearchPathFlag, "search", "s", configSearchPaths, "config file search paths, do not use with -p")
@@ -62,7 +64,11 @@ func run() error {
 	if err = app.Command.MarkPersistentFlagDirname("path"); err != nil {
 		return err
 	}
-	if err = app.Command.MarkPersistentFlagFilename("file", "yaml", "yml"); err != nil {
+	if err = app.Command.MarkPersistentFlagFilename("configFile", "yaml", "yml"); err != nil {
+		return err
+	}
+
+	if err = app.Command.MarkPersistentFlagFilename("envFile", "env"); err != nil {
 		return err
 	}
 

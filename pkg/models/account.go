@@ -24,32 +24,37 @@ import (
 	"fmt"
 
 	"github.com/go-acme/lego/v4/registration"
+
+	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
-type User struct {
+type Account struct {
 	Email        string
 	Registration *registration.Resource
 	key          crypto.PrivateKey
+
+	ExternalAccountBinding config.ExternalAccountBinding
 }
 
-func (u User) GetEmail() string {
-	return u.Email
+func (a Account) GetEmail() string {
+	return a.Email
 }
-func (u User) GetRegistration() *registration.Resource {
-	return u.Registration
+func (a Account) GetRegistration() *registration.Resource {
+	return a.Registration
 }
-func (u User) GetPrivateKey() crypto.PrivateKey {
-	return u.key
+func (a Account) GetPrivateKey() crypto.PrivateKey {
+	return a.key
 }
 
-func NewUser(email string) (*User, error) {
+func NewAccount(email string, eab config.ExternalAccountBinding) (*Account, error) {
 	key, err := createPrivateKey()
 	if err != nil {
 		return nil, fmt.Errorf("could not create new private key for user %s with message %w", email, err)
 	}
-	return &User{
-		Email: email,
-		key:   key,
+	return &Account{
+		Email:                  email,
+		key:                    key,
+		ExternalAccountBinding: eab,
 	}, nil
 }
 
