@@ -24,6 +24,10 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Configuration mode](#configuration-mode)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Configuration](#configuration)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Global configuration](#global-configuration)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Config path](#config-path)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Organizations](#organizations)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Users](#users)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Provider parameters](#provider-parameters)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Examples](#examples)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Certificate configuration](#certificate-configuration)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Request](#request)</br>
@@ -31,8 +35,11 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Service](#service)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Type](#type)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Provider](#provider)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Provider parameters](#provider-parameters-1)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Disable DNS propagation check](#disablednspropagationcheck)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Installation](#installation)</br>
+
+---
 ## Introduction
 
 Let's Encrypt for NetScaler ADC (aka LENS) is a tool which allows you to generate certificates based on the well-known ACME protocol. It is based on the fantastic library from the people at [https://github.com/go-acme/lego](https://github.com/go-acme/lego) to provide the functionality to talk to different DNS providers, but now also NetScaler ADC.
@@ -42,7 +49,7 @@ Let's Encrypt for NetScaler ADC (aka LENS) is a tool which allows you to generat
 ---
 ## Changelog
 ### v0.3.1
-- Changed global application flags to accomodate a global configuration file and environment variables file flag
+- Changed global application flags to accommodate a global configuration file and environment variables file flag
   - changed -f / --config to -c / --configFile
   - added -e / --envFile
   - This also frees up the -f parameter to be changed later to a --force parameter
@@ -87,7 +94,7 @@ As such, it is currently not possible to run the tool on a NetScaler directly.
 By default, we support both staging and production environments for Let's Encrypt.
 Lens is designed to work with other certificate authorities who provide access through the ACME protocol.
 
-*If you are a user of other ACME-protocol based services, such as Sectigo, please reach out so we can ensure maximum compatibility!*
+*If you are a user of other ACME-protocol based services, such as Sectigo, please reach out, so we can ensure maximum compatibility!*
 
 [Back to top](#lets-encrypt-for-netscaler-adc)
 
@@ -262,9 +269,9 @@ See [Multiple environments - with environment variable file](#multiple-environme
 #### Integrations
 ##### 1Password
 Using 1password-CLI (```op```), you can integrate your password vault for use with environment variables.</br>
-For more information, check out [1Password Command-Line tool](#https://1password.com/downloads/command-line/) and the [documentation](#https://developer.1password.com/docs/cli/get-started/).
+For more information, check out [1Password Command-Line tool](https://1password.com/downloads/command-line/) and the [documentation](https://developer.1password.com/docs/cli/get-started/).
 
-When you have setup 1password-CLI, you can start referencing items in your vault:
+When you have set up 1password-CLI, you can start referencing items in your vault:
 - [Load secrets into the environment](https://developer.1password.com/docs/cli/secrets-environment-variables)
 - [Load secrets into config files](https://developer.1password.com/docs/cli/secrets-config-files)
 
@@ -293,19 +300,19 @@ The individual certificate configuration files can be stored elsewhere on the sy
 [Back to top](#lets-encrypt-for-netscaler-adc)
 
 ### Global configuration
-```
-configPath: <path to the individua certificate configuration files>
+```yaml
+configPath: <path to the individual certificate configuration files>
 organizations:
   - name: <organization name>
     environments:
       - name: <environment name>
         type: <standalone | hapair | cluster>
         management:
-          name: <name for the SNIP address>
-          address: <SNIP address>
+          name: <name for the management address>
+          address: <management ip address / fqdn>
         nodes:
-          - name: <hostname>
-            address: <NSIP address>
+          - name: <name for the individual node>
+            address: <NSIP address / fqdn>
         credentials:
           username: <username>
           password: <password>
@@ -315,9 +322,17 @@ organizations:
           validateServerCertificate: <true | false>
           logTlsSecrets: <true | false>
           autoLogin: <true | false>
-acmeUsers:
-  - name: <acme username>
-    email: <acme e-mail address>
+users:
+  - name: <user name for reference in certificate configuration files>
+    email: <user e-mail address>
+    eab:
+      kid: <kid for external account binding>
+      hmacEncoded: <hmac key for external account binding>
+  - name: <user name for reference in certificate configuration files>
+    email: <user e-mail address>
+    eab:
+      kid: <kid for external account binding>
+      hmacEncoded: <hmac key for external account binding>
 providerParameters:
   - name: <name for the set of parameters>
     variables:
@@ -326,6 +341,28 @@ providerParameters:
       - name: <environment variable name>
         value: <environment variable value>
 ```
+
+As you can see, the global configuration has several sections, which we will discuss in more detail below:
+- [config path](#config-path)
+- [organizations](#organizations)
+- [users](#users)
+- [provider parameters](#provider-parameters)
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+#### Config path
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+#### Organizations
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+#### Users
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+#### Provider parameters
 
 [Back to top](#lets-encrypt-for-netscaler-adc)
 
@@ -363,7 +400,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-acmeUsers:
+users:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -391,7 +428,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-acmeUsers:
+users:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -424,7 +461,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-acmeUsers:
+users:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -454,7 +491,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-acmeUsers:
+users:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -503,7 +540,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-acmeUsers:
+users:
   - name: corelayer_acme
     email: fake@email.com
 ```
@@ -559,7 +596,7 @@ organizations:
           validateServerCertificate: false
           logTlsSecrets: false
           autoLogin: false
-acmeUsers:
+users:
   - name: ${LENS_NAME1}
     email: fake@email.com
 ```
@@ -570,14 +607,15 @@ acmeUsers:
 ```yaml
 name: <name>
 request:
-  organization: <organization name>
-  environment: <environment name>
-  acmeUser: <acme username>
+  target:
+    organization: <organization name>
+    environment: <environment name>
+  user: <user name referenced from users section in global config file>
   challenge:
     service: LE_STAGING | LE_PRODUCTION | <custom url>
     type: <http-01 | dns-01>
     provider: <netscaler-http-global | netscaler-adns | <name of dns provider>
-    providerParameters: <providerParameters name>
+    providerParameters: <providerParameters name from global config file>
     disableDnsPropagationCheck: <true | false>
   keyType: <RSA20248 | RSA4096 | RSA8192 | EC256 | EC384>
   content:
@@ -587,8 +625,9 @@ request:
       - <subjectAlternativeName>
     subjectAlternativeNamesFile: <filename | filepath>
 installation:
-  - organization: <organization name>
-    environment: <environment name>
+  - target:
+      organization: <organization name>
+      environment: <environment name>
     replaceDefaultCertificate: <true | false>
     sslVirtualServers:
       - name: <ssl vserver name>
@@ -633,14 +672,25 @@ However, we do support external DNS providers.
 
 [Back to top](#lets-encrypt-for-netscaler-adc)
 
+###### Provider parameters
+This tool is primarily meant for use with NetScaler ADC, both for the certificate request as for the installation of the certificate.
+However, we do support external DNS providers.
+
+- ```netscaler-http-global```
+- ```netscaler-adns```
+
+**Other DNS providers are to be enabled in a future releases.**
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ###### DisableDnsPropagationCheck
-In case you are executing a challenge from within a network that has split-DNS (different DNS responses on the internet compared to the local network), you might need to set ```DisableDnsPropagationCheck``` to ```true```.</br>When enabled, lens will not wait for any propagation to happen, nor will it check if propagation has succeeded in orde for it to complete the challenge.
+In case you are executing a challenge from within a network that has split-DNS (different DNS responses on the internet compared to the local network), you might need to set ```DisableDnsPropagationCheck``` to ```true```.</br>When enabled, lens will not wait for any propagation to happen, nor will it check if propagation has succeeded in order for it to complete the challenge.
 
 [Back to top](#lets-encrypt-for-netscaler-adc)
 
 #### Installation
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
-This is especially useful when having SAN-certificates or wildard certificates, so they can be bound appropriately on different NetScaler environments.
+This is especially useful when having SAN-certificates or wildcard certificates, so they can be bound appropriately on different NetScaler environments.
 
 **Note that you cannot have the option ```replaceDefaultCertificate``` set to ```true``` while having endpoints defined under "sslVserver" and/or "sslServices"**
 
@@ -659,9 +709,10 @@ Certificate configuration:
 ```yaml
 name: corelogic_dev
 request:
-  organization: corelayer
-  environment: development
-  acmeUser: corelayer_acme
+  target:
+    organization: corelayer
+    environment: development
+  user: corelayer_acme
   challenge:
     service: LE_STAGING
     type: http-01
@@ -670,8 +721,9 @@ request:
   content:
     commonName: corelogic.dev.corelayer.eu
 installation:
-  - organization: corelayer
-    environment: development
+  - target:
+      organization: corelayer
+      environment: development
     sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
@@ -684,9 +736,10 @@ Certificate configuration:
 ```yaml
 name: corelogic_dev
 request:
-  organization: corelayer
-  environment: development
-  acmeUser: corelayer_acme
+  target:
+    organization: corelayer
+    environment: development
+  user: corelayer_acme
   challenge:
     service: LE_STAGING
     type: http-01
@@ -698,8 +751,9 @@ request:
       - demo.dev.corelayer.eu
       - my.dev.corelayer.eu
 installation:
-  - organization: corelayer
-    environment: development
+  - target:
+      organization: corelayer
+      environment: development
     sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
@@ -712,9 +766,10 @@ Certificate configuration:
 ```yaml
 name: corelogic_dev
 request:
-  organization: corelayer
-  environment: development
-  acmeUser: corelayer_acme
+  target:
+    organization: corelayer
+    environment: development
+  user: corelayer_acme
   challenge:
     service: LE_STAGING
     type: http-01
@@ -726,8 +781,9 @@ request:
       - vpx-001.dev.corelayer.eu
       - vpx-002.dev.corelayer.eu
 installation:
-  - organization: corelayer
-    environment: development
+  - target:
+      organization: corelayer
+      environment: development
     replaceDefaultCertificate: true
 ```
 
@@ -738,9 +794,10 @@ Certificate configuration:
 ```yaml
 name: corelogic_dev
 request:
-  organization: corelayer
-  environment: development
-  acmeUser: corelayer_acme
+  target:
+    organization: corelayer
+    environment: development
+  user: corelayer_acme
   challenge:
     service: LE_STAGING
     type: http-01
@@ -750,8 +807,9 @@ request:
     commonName: corelogic.dev.corelayer.eu
     subjectAlternativeNamesFile: corelogic_dev_san.txt
 installation:
-  - organization: corelayer
-    environment: development
+  - target:
+      organization: corelayer
+      environment: development
     sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
@@ -770,9 +828,10 @@ Certificate configuration:
 ```yaml
 name: corelogic_dev
 request:
-  organization: corelayer
-  environment: development
-  acmeUser: corelayer_acme
+  target:
+    organization: corelayer
+    environment: development
+  user: corelayer_acme
   challenge:
     service: LE_STAGING
     type: http-01
@@ -781,18 +840,22 @@ request:
   content:
     commonName: corelogic.dev.corelayer.eu
 installation:
-  - organization: corelayer
-    environment: development
+  - target:
+      organization: corelayer
+      environment: development
     sslVirtualServers:
       - name: CSV_DEV_SSL
         sniEnabled: true
       - name: CSV_PUBLICDEV_SSL
         sniEnabled: false
-  - organization: corelayer
-    environment: test
+  - target:
+      organization: corelayer
+      environment: test
     sslVirtualServers:
       - name: CSV_TST_SSL
         sniEnabled: true
 ```
 
 [Back to top](#lets-encrypt-for-netscaler-adc)
+
+---
