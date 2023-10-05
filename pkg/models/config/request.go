@@ -34,11 +34,13 @@ const (
 	ACME_KEY_TYPE_RSA8192 = "RSA8192"
 )
 
+// TODO Implement ACME request timeout logic?
 type Request struct {
 	Target    Target    `json:"target" yaml:"target" mapstructure:"target"`
 	User      string    `json:"user" yaml:"user" mapstructure:"user"`
 	Challenge Challenge `json:"challenge" yaml:"challenge" mapstructure:"challenge"`
 	KeyType   string    `json:"keyType" yaml:"keyType" mapstructure:"keyType"`
+	Timeout   int       `json:"timeout" yaml:"timeout" mapstructure:"timeout"`
 	Content   Content   `json:"content" yaml:"content" mapstructure:"content"`
 	basePath  string
 }

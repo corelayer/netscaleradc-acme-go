@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"sync"
 	"time"
 
@@ -284,11 +285,12 @@ func (l Launcher) getUser(username string) (config.User, error) {
 	return config.User{}, fmt.Errorf("user %s does not exist", username)
 }
 
-func (l Launcher) getLegoClient(username string, url string, keyType certcrypto.KeyType) (*lego.Client, error) {
+func (l Launcher) getLegoClient(username string, url string, keyType certcrypto.KeyType, timeout int) (*lego.Client, error) {
 	var (
-		err     error
-		account *models.Account
-		client  *lego.Client
+		err            error
+		account        *models.Account
+		requestTimeout time.Duration
+		client         *lego.Client
 	)
 
 	l.registrationMutex.Lock()
@@ -299,9 +301,11 @@ func (l Launcher) getLegoClient(username string, url string, keyType certcrypto.
 		return nil, fmt.Errorf("could not find user %s for service %s with message: %w", username, url, err)
 	}
 
+	requestTimeout, err = time.ParseDuration(strconv.Itoa(timeout))
 	legoConfig := lego.NewConfig(*account)
 	legoConfig.CADirURL = url
 	legoConfig.Certificate.KeyType = keyType
+	legoConfig.Certificate.Timeout = requestTimeout
 
 	client, err = lego.NewClient(legoConfig)
 	if err != nil {
@@ -349,7 +353,7 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	)
 	slog.Info("execute acme request for certificate", "certificate", cert.Name)
 
-	client, err = l.getLegoClient(cert.Request.User, cert.Request.GetServiceUrl(), cert.Request.GetKeyType())
+	client, err = l.getLegoClient(cert.Request.User, cert.Request.GetServiceUrl(), cert.Request.GetKeyType(), cert.Request.Timeout)
 	if err != nil {
 		return nil, err
 	}
