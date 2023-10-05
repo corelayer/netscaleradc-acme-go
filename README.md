@@ -1,8 +1,45 @@
-# netscaleradc-acme-go
+# Let's Encrypt for NetScaler ADC
+## Table of Contents
+[Introduction](#introduction)</br>
+[Changelog](#changelog)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;[v0.3.1](#v031)</br>
+[System Requirements](#system-requirements)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Operating System](#operating-system)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Native NetScaler ADC binary](#native-netscaler-adc-binary)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Certificate Authorities](#certificate-authorities)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;[NetScaler ADC](#netscaler-adc)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[User Permission](#user-permissions)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[CLI Commands](#cli-commands)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Terraform](#terraform)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Running on NetScaler natively](#running-on-netscaler-adc-natively)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Running Lens](#running-lens)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Request mode](#request-mode)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Environment variables](#environment-variables)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Defining environment variables](#defining-environment-variables)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[CLI](#cli)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Environment variables file](#environment-variables-file)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Referencing environment variables](#referencing-environment-variables)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Integrations](#integrations)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1Password](#1password)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Configuration mode](#configuration-mode)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Configuration](#configuration)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Global configuration](#global-configuration)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Examples](#examples)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Certificate configuration](#certificate-configuration)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Request](#request)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Challenge](#challenge)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Service](#service)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Type](#type)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Provider](#provider)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Disable DNS propagation check](#disablednspropagationcheck)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Installation](#installation)</br>
 ## Introduction
 
 Let's Encrypt for NetScaler ADC (aka LENS) is a tool which allows you to generate certificates based on the well-known ACME protocol. It is based on the fantastic library from the people at [https://github.com/go-acme/lego](https://github.com/go-acme/lego) to provide the functionality to talk to different DNS providers, but now also NetScaler ADC.
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+---
 ## Changelog
 ### v0.3.1
 - Changed global application flags to accomodate a global configuration file and environment variables file flag
@@ -13,6 +50,9 @@ Let's Encrypt for NetScaler ADC (aka LENS) is a tool which allows you to generat
 - Added provider parameters to global configuration file for use with DNS providers which require environment variables to be set when being used.
   - For more information on available providers, see [https://go-acme.github.io/lego/dns/](https://go-acme.github.io/lego/dns/)
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+---
 ## System requirements
 ### Operating system
 We provide binaries for different operating systems and architectures:
@@ -20,6 +60,8 @@ We provide binaries for different operating systems and architectures:
 - MacOS (Intel/Apple Silicon)
 - Windows (amd64/arm64)
 - FreeBSD (amd64/arm64), versions > FreeBSD 11
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 #### Native NetScaler ADC binary
 Lens was initially designed to be run on NetScaler appliances directly as well.</br>
@@ -38,6 +80,8 @@ FreeBSD 11.4-NETSCALER-14.1 amd64 amd64
 Again, NetScaler is based on a **heavily modified** FreeBSD operating system, but base OS is still FreeBSD 11.4.
 As such, it is currently not possible to run the tool on a NetScaler directly.
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ### Certificate Authorities
 
 By default, we support both staging and production environments for Let's Encrypt.
@@ -45,26 +89,39 @@ Lens is designed to work with other certificate authorities who provide access t
 
 *If you are a user of other ACME-protocol based services, such as Sectigo, please reach out so we can ensure maximum compatibility!*
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ### NetScaler ADC
 #### User permissions
 - You will need a user account with the following permissions:
     - \<TBD>
 
 For easy configuration, we provide the necessary commands to create the command policy on NetScaler ADC in the section below.
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ##### CLI Commands
 ```text
 </TBD>
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ##### Terraform
 ```text
 </TBD>
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 #### Running on NetScaler ADC natively
 If you run the binary natively on NetScaler ADC:
 - You will need internet access to connect to your ACME service of choice if you want to run natively on NetScaler ADC
 - You wil need connectivity with either the NSIP or SNIP address for the environments to which you will connect.
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+---
 ## Running Lens
 ```
     __    _______   _______
@@ -92,6 +149,7 @@ Flags:
   -s, --search strings      config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD,%APPDATA%/corelayer/lens,%LOCALAPPDATA%/corelayer/lens,%PROGRAMDATA%/corelayer/lens])
 
 Use "lens [command] --help" for more information about a command.
+
 ```
 
 **NOTE: do not use the same file name for both the config file and environment variables file, e.g. ```config.yaml``` and ```config.env```, unless you specify the path of the config files using the ```-p``` flag**<br/>
@@ -113,6 +171,8 @@ Global Flags:
 - -s / --search: allows you to specify multiple search paths
 
 - -l / --loglevel [debug | info | warning | error]: allows you to specify a loglevel, the default is "info"
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ### Request mode
 ```
@@ -138,6 +198,7 @@ Global Flags:
   -l, --loglevel string     log level
   -p, --path string         config file path, do not use with -s
   -s, --search strings      config file search paths, do not use with -p (default [/etc/corelayer/lens,/nsconfig/ssl/LENS,$HOME/.lens,$PWD,%APPDATA%/corelayer/lens,%LOCALAPPDATA%/corelayer/lens,%PROGRAMDATA%/corelayer/lens])
+
 ```
 
 You can either request one single certificate or all configured certificates at once.
@@ -151,6 +212,8 @@ Flags:
 
 The global flags are still applicable and can be used accordingly.
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ### Environment variables
 
 Environment variables can be set in two ways:
@@ -159,7 +222,10 @@ Environment variables can be set in two ways:
 
 **NOTE: both can be used at the same time**
 
-#### CLI
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+#### Defining environment variables
+##### CLI
 
 Always prefix the environment variable with ```LENS_```.
 Other environment variables will not be used to replace variable placeholders in the config files.
@@ -167,7 +233,9 @@ Other environment variables will not be used to replace variable placeholders in
 Example:<br/>
 ```LENS_NAME=corelayer_acme lens request -a```
 
-#### Environment Variables File
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+##### Environment Variables File
 
 You do not need to prefix the environment variable in the file.
 However, when referencing the variable in a config file, you **must** prefix
@@ -179,6 +247,8 @@ NAME=corelayer_acme
 
 CLI: ```lens request -e variables.env```
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 #### Referencing environment variables
 
 You can reference the environment variables in the global configuration file.</br>
@@ -187,12 +257,28 @@ We can now use that variable as a reference using ${LENS_NAME} as the value of a
 
 See [Multiple environments - with environment variable file](#multiple-environments---with-environment-variable-file) for more information.
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+#### Integrations
+##### 1Password
+Using 1password-CLI (```op```), you can integrate your password vault for use with environment variables.</br>
+For more information, check out [1Password Command-Line tool](#https://1password.com/downloads/command-line/) and the [documentation](#https://developer.1password.com/docs/cli/get-started/).
+
+When you have setup 1password-CLI, you can start referencing items in your vault:
+- [Load secrets into the environment](https://developer.1password.com/docs/cli/secrets-environment-variables)
+- [Load secrets into config files](https://developer.1password.com/docs/cli/secrets-config-files)
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ### Configuration mode
 
 **Not implemented**
 
 The goal is to be able to configure lens from the command line.
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+---
 ## Configuration
 
 Configuration for lens is done using YAML files and is split up in 2 parts:
@@ -203,6 +289,8 @@ As the global configuration needs to have all account details for the different 
 - On Linux, this would typically be /etc/corelayer/lens for example, which can have the necessary permissions to only allow root access or access from the user account intended to run lens.
 
 The individual certificate configuration files can be stored elsewhere on the system with more permissive access, as it will only contain the certificate configuration. References to the environments are made using the name of the configured environment.
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ### Global configuration
 ```
@@ -239,6 +327,8 @@ providerParameters:
         value: <environment variable value>
 ```
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 #### Examples
 - [Standalone - using SNIP](#standalone---using-snip)
 - [Standalone - using NSIP](#standalone---using-nsip)
@@ -246,6 +336,8 @@ providerParameters:
 - [High-Availability pair - using NSIP](#high-availability-pair---using-nsip)
 - [Multiple environments](#multiple-environments)
 - [Multiple environments - with environment variable file](#multiple-environments---with-environment-variable-file)
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### Standalone - using SNIP
 Global configuration:
@@ -276,6 +368,8 @@ acmeUsers:
     email: fake@email.com
 ```
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ##### Standalone - using NSIP
 Global configuration:
 ```yaml
@@ -301,6 +395,8 @@ acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### High-availability Pair - using SNIP
 Global configuration:
@@ -333,6 +429,8 @@ acmeUsers:
     email: fake@email.com
 ```
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ##### High-availability Pair - using NSIP
 Global configuration:
 ```yaml
@@ -360,6 +458,8 @@ acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### Multiple environments
 Global configuration:
@@ -407,6 +507,8 @@ acmeUsers:
   - name: corelayer_acme
     email: fake@email.com
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### Multiple environments - with environment variable file
 Environment variables file:
@@ -462,6 +564,8 @@ acmeUsers:
     email: fake@email.com
 ```
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ### Certificate configuration
 ```yaml
 name: <name>
@@ -497,9 +601,13 @@ As you can see, the configuration is split up in two parts:
 - request
 - installation
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 #### Request
 This section holds all the details to be able to request a certificate from your ACME service of choice.
 We need to specify the organization and environment name to select which NetScaler to talk to.
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### Challenge
 ###### Service
@@ -507,8 +615,12 @@ You can either choose one of the pre-defined services, or specify your own ACME 
 - ```LE_STAGING```: Let's Encrypt STAGING Environment
 - ```LE_PRODUCTION```: Let's Encrypt PRODUCTION Environment
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ###### Type
 We currently either support ```http-01``` or ```dns-01``` as the challenge type.
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ###### Provider
 This tool is primarily meant for use with NetScaler ADC, both for the certificate request as for the installation of the certificate.
@@ -519,9 +631,12 @@ However, we do support external DNS providers.
 
 **Other DNS providers are to be enabled in a future releases.**
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ###### DisableDnsPropagationCheck
 In case you are executing a challenge from within a network that has split-DNS (different DNS responses on the internet compared to the local network), you might need to set ```DisableDnsPropagationCheck``` to ```true```.</br>When enabled, lens will not wait for any propagation to happen, nor will it check if propagation has succeeded in orde for it to complete the challenge.
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 #### Installation
 Once the certificate request is done, we can install the certificate onto multiple ssl vservers in multiple environments.
@@ -529,11 +644,15 @@ This is especially useful when having SAN-certificates or wildard certificates, 
 
 **Note that you cannot have the option ```replaceDefaultCertificate``` set to ```true``` while having endpoints defined under "sslVserver" and/or "sslServices"**
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 #### Examples
 - [Simple certificate](#simple-certificate)
 - [SAN certificate - using manual entries](#san-certificate---using-manual-entries)
 - [SAN certificate - replace default NetScaler certificate](#san-certificate---replace-default-netscaler-certificate)
 - [SAN certificate - using external file](#san-certificate---using-external-file)
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### Simple certificate
 Certificate configuration:
@@ -557,6 +676,8 @@ installation:
       - name: CSV_DEV_SSL
         sniEnabled: true
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### SAN certificate - using manual entries
 Certificate configuration:
@@ -584,6 +705,8 @@ installation:
         sniEnabled: true
 ```
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ##### SAN certificate - Replace default NetScaler certificate
 Certificate configuration:
 ```yaml
@@ -607,6 +730,8 @@ installation:
     environment: development
     replaceDefaultCertificate: true
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
 
 ##### SAN certificate - using external file
 Certificate configuration:
@@ -638,6 +763,8 @@ demo.dev.corelayer.eu
 my.dev.corelayer.eu
 ```
 
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
 ##### Simple certificate - multiple installations
 Certificate configuration:
 ```yaml
@@ -667,3 +794,5 @@ installation:
       - name: CSV_TST_SSL
         sniEnabled: true
 ```
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
