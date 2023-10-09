@@ -301,7 +301,7 @@ func (l Launcher) getLegoClient(username string, url string, keyType certcrypto.
 		return nil, fmt.Errorf("could not find user %s for service %s with message: %w", username, url, err)
 	}
 
-	requestTimeout, err = time.ParseDuration(strconv.Itoa(timeout))
+	requestTimeout, err = time.ParseDuration(strconv.Itoa(timeout) + "s")
 	legoConfig := lego.NewConfig(*account)
 	legoConfig.CADirURL = url
 	legoConfig.Certificate.KeyType = keyType
