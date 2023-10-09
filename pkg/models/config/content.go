@@ -29,6 +29,7 @@ type Content struct {
 	CommonName                  string   `json:"commonName" yaml:"commonName" mapstructure:"commonName"`
 	SubjectAlternativeNames     []string `json:"subjectAlternativeNames" yaml:"subjectAlternativeNames" mapstructure:"subjectAlternativeNames"`
 	SubjectAlternativeNamesFile string   `json:"subjectAlternativeNamesFile" yaml:"subjectAlternativeNamesFile" mapstructure:"subjectAlternativeNamesFile"`
+	VerifyDnsRecords            bool     `json:"verifyDnsRecords" yaml:"verifyDnsRecords" mapstructure:"verifyDnsRecords"`
 }
 
 func (c Content) GetDomains(basePath string) ([]string, error) {
@@ -49,7 +50,10 @@ func (c Content) GetDomains(basePath string) ([]string, error) {
 	}
 
 	output = append(output, domains...)
-	return output, c.validateDomains(output)
+	if c.VerifyDnsRecords {
+		return output, c.validateDomains(output)
+	}
+	return output, nil
 }
 
 func (c Content) GetDomainsFromFile(basePath string) ([]string, error) {
