@@ -103,6 +103,24 @@ Lens is designed to work with other certificate authorities who provide access t
 - You will need a user account with the following permissions:
     - \<TBD>
 
+```regexp
+(^show\s+ha\s+node\s+0)
+(^show\s+dns\s+txtRec\s+_acme-challenge\..*)
+(^add\s+dns\s+txtRec\s+_acme-challenge\..*)
+(^rm\s+dns\s+txtRec\s+_acme-challenge\..*)
+
+(^show\s+system\s+file\s+.*_\d{14}\.(cer|key)\s+-fileLocation\s+"/nsconfig/ssl/LENS/.*")
+(^add\s+system\s+file\s+.*_\d{14}\.(cer|key)\s+-fileLocation\s+"/nsconfig/ssl/LENS/.*")
+(^rm\s+system\s+file\s+.*_\d{14}\.(cer|key)\s+-fileLocation\s+"/nsconfig/ssl/LENS/.*")
+
+(^show\s+ssl\s+certKey\s+LENS_.*)|(^show\s+ssl\s+certKey)
+(^add\s+ssl\s+certKey\s+LENS_.*\s+-cert\s+"/nsconfig/ssl/LENS/.*_\d{14}.cer"\s+-key\s+"/nsconfig/ssl/LENS/.*_\d{14}.key".*)
+(^update\s+ssl\s+certKey\s+LENS_.*\s+-cert\s+"/nsconfig/ssl/LENS/.*_\d{14}.cer"\s+-key\s+"/nsconfig/ssl/LENS/.*_\d{14}.key".*)
+(^rm\s+ssl\s+certKey\s+LENS_.*)
+
+(^save ns config)
+```
+
 For easy configuration, we provide the necessary commands to create the command policy on NetScaler ADC in the section below.
 
 [Back to top](#lets-encrypt-for-netscaler-adc)
