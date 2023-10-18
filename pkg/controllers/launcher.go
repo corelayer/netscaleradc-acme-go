@@ -235,7 +235,7 @@ func (l Launcher) certificateInstallationProcessor(t config.Target, ch <-chan co
 		}
 		for _, i := range r.Installation {
 			if i.Target == t {
-				err = l.updateEnvironment(i, r.Name, r.Resource)
+				err = l.updateEnvironment(i, r.Name, r.Request.Challenge.Service, r.Resource)
 				if err != nil {
 					l.errorChannel <- fmt.Errorf("error occurred while processing request for certificate %s using target %s with message: %w", r.Name, t, err)
 					continue
@@ -438,7 +438,7 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	// Execute ACME request
 	request := certificate.ObtainRequest{
 		Domains: domains,
-		Bundle:  false,
+		Bundle:  true,
 	}
 
 	var certificates *certificate.Resource
@@ -474,7 +474,12 @@ func (l Launcher) getSslCertKeyName(name string) string {
 	return "LENS_" + name
 }
 
-func (l Launcher) uploadCertificates(c *nitro.Client, t config.Target, name string, cert *certificate.Resource) error {
+func (l Launcher) getIntermediateSslCertKeyName(name string) string {
+	return "LENSCA_" + name
+}
+
+// func (l Launcher) uploadCertificates(c *nitro.Client, t config.Target, name string, cert *certificate.Resource) error {
+func (l Launcher) uploadCertificates(c *nitro.Client, t config.Target, name string, cert []byte, key []byte) error {
 	var (
 		err error
 	)
@@ -482,15 +487,19 @@ func (l Launcher) uploadCertificates(c *nitro.Client, t config.Target, name stri
 	controller := controllers.NewSystemFileController(c)
 
 	slog.Debug("uploading certificate public key to target", "target", t, "certificate", name)
-	_, err = controller.Add(l.getCertificateFilename(name), LENS_CERTIFICATE_PATH, cert.Certificate)
+	// _, err = controller.Add(l.getCertificateFilename(name), LENS_CERTIFICATE_PATH, cert.Certificate)
+	_, err = controller.Add(l.getCertificateFilename(name), LENS_CERTIFICATE_PATH, cert)
 	if err != nil {
 		return fmt.Errorf("could not upload certificate public key to organization %s environment %s with message %w", t.Organization, t.Environment, err)
 	}
 
-	slog.Debug("uploading certificate private key to target", "target", t, "certificate", name)
-	_, err = controller.Add(l.getPrivateKeyFilename(name), LENS_CERTIFICATE_PATH, cert.PrivateKey)
-	if err != nil {
-		return fmt.Errorf("could not upload certificate private key to organization %s environment %s with message %w", t.Organization, t.Environment, err)
+	if key != nil {
+		slog.Debug("uploading certificate private key to target", "target", t, "certificate", name)
+		// _, err = controller.Add(l.getPrivateKeyFilename(name), LENS_CERTIFICATE_PATH, cert.PrivateKey)
+		_, err = controller.Add(l.getPrivateKeyFilename(name), LENS_CERTIFICATE_PATH, key)
+		if err != nil {
+			return fmt.Errorf("could not upload certificate private key to organization %s environment %s with message %w", t.Organization, t.Environment, err)
+		}
 	}
 	return nil
 }
@@ -512,7 +521,7 @@ func (l Launcher) configureSslCertKey(c *nitro.Client, name string, t config.Tar
 			return fmt.Errorf("could not verify if certificate exists in organization %s environment %s with message %w", t.Organization, t.Environment, err)
 		} else {
 			slog.Debug("creating ssl certkey on target", "target", t, "certificate", name)
-			if _, err = controller.Add(l.getSslCertKeyName(name), LENS_CERTIFICATE_PATH+l.getCertificateFilename(name), LENS_CERTIFICATE_PATH+l.getPrivateKeyFilename(name)); err != nil {
+			if _, err = controller.AddBundle(l.getSslCertKeyName(name), LENS_CERTIFICATE_PATH+l.getCertificateFilename(name), LENS_CERTIFICATE_PATH+l.getPrivateKeyFilename(name)); err != nil {
 				slog.Debug("could not add certificate to environment", "target", t, "certificate", name, "error", err)
 				return fmt.Errorf("could not add certificate to organization %s environment %s with message %w", t.Organization, t.Environment, err)
 			}
@@ -522,6 +531,40 @@ func (l Launcher) configureSslCertKey(c *nitro.Client, name string, t config.Tar
 		if _, err = controller.Update(l.getSslCertKeyName(name), LENS_CERTIFICATE_PATH+l.getCertificateFilename(name), LENS_CERTIFICATE_PATH+l.getPrivateKeyFilename(name), true); err != nil {
 			slog.Debug("could not update certificate exists in environment", "target", t, "certificate", name, "error", err)
 			return fmt.Errorf("could not update certificate in organization %s environment %s with message %w", t.Organization, t.Environment, err)
+
+		}
+	}
+
+	return nil
+}
+
+func (l Launcher) configureIntermediateSslCertKey(c *nitro.Client, name string, t config.Target) error {
+	var (
+		err       error
+		unwrapErr error
+	)
+	slog.Info("configure intermediate ssl certkey on target", "target", t, "certificate", name)
+
+	controller := controllers.NewSslCertKeyController(c)
+
+	// Check if certificate exists
+	if _, err = controller.Get(l.getIntermediateSslCertKeyName(name), nil); err != nil {
+		unwrapErr = errors.Unwrap(err)
+		if !errors.Is(unwrapErr, nitro.NSERR_SSL_NOCERT) {
+			slog.Debug("could not verify if intermediate certificate exists on target", "target", t, "certificate", name, "error", err)
+			return fmt.Errorf("could not verify if intermediate certificate exists in organization %s environment %s with message %w", t.Organization, t.Environment, err)
+		} else {
+			slog.Debug("creating intermediate ssl certkey on target", "target", t, "certificate", name)
+			if _, err = controller.AddBundle(l.getIntermediateSslCertKeyName(name), LENS_CERTIFICATE_PATH+l.getCertificateFilename(name), ""); err != nil {
+				slog.Debug("could not add intermediate certificate to environment", "target", t, "certificate", name, "error", err)
+				return fmt.Errorf("could not add intermediate certificate to organization %s environment %s with message %w", t.Organization, t.Environment, err)
+			}
+		}
+	} else {
+		slog.Debug("updating intermediate ssl certkey on target", "target", t, "certificate", name)
+		if _, err = controller.Update(l.getIntermediateSslCertKeyName(name), LENS_CERTIFICATE_PATH+l.getCertificateFilename(name), "", true); err != nil {
+			slog.Debug("could not update intermediate certificate exists in environment", "target", t, "certificate", name, "error", err)
+			return fmt.Errorf("could not update intermediate certificate in organization %s environment %s with message %w", t.Organization, t.Environment, err)
 
 		}
 	}
@@ -555,7 +598,57 @@ func (l Launcher) configureCertificates(c *nitro.Client, i config.Installation, 
 	return nil
 }
 
-func (l Launcher) updateEnvironment(i config.Installation, name string, cert *certificate.Resource) error {
+func (l Launcher) configureIntermediateCertificates(c *nitro.Client, i config.Installation, name string) error {
+	var (
+		err error
+	)
+
+	err = l.configureIntermediateSslCertKey(c, name, i.Target)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l Launcher) intermediateExists(c *nitro.Client, t config.Target, name string, cert []byte) (bool, error) {
+	var (
+		err        error
+		controller *controllers.SslCertKeyController
+		result     *nitro.Response[nitroConfig.SslCertKey]
+	)
+
+	// TODO SLOG MESSAGES
+	block, _ := pem.Decode(cert)
+	if block == nil {
+		return false, fmt.Errorf("failed to parse PEM block containing the public key for certificate %s", name)
+	}
+	var pub *x509.Certificate
+	pub, err = x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse DER encoded public key for certificate %s with message %w: ", name, err)
+	}
+	slog.Debug("issuer certificate information", "cn", pub.Subject)
+
+	controller = controllers.NewSslCertKeyController(c)
+
+	filter := make(map[string]string)
+	filter["serial"] = fmt.Sprintf("%X", pub.SerialNumber)
+	result, err = controller.List(filter, []string{"certkey", "subject", "serial"})
+	if err != nil {
+		return false, fmt.Errorf("error while getting list of ca certs")
+	}
+
+	for _, v := range result.Data {
+		if v.Serial == fmt.Sprintf("%X", pub.SerialNumber) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (l Launcher) updateEnvironment(i config.Installation, name string, service string, cert *certificate.Resource) error {
 	var (
 		err    error
 		e      registry.Environment
@@ -571,7 +664,28 @@ func (l Launcher) updateEnvironment(i config.Installation, name string, cert *ce
 
 	client, err = e.GetPrimaryNitroClient()
 
-	err = l.uploadCertificates(client, i.Target, name, cert)
+	// FIRST, TRY TO UPLOAD THE CERTIFICATE CHAIN AS A BUNDLE
+	var intermediateExists = false
+	intermediateExists, err = l.intermediateExists(client, i.Target, service, cert.IssuerCertificate)
+	if err != nil {
+		return err
+	}
+	if !intermediateExists {
+		err = l.uploadCertificates(client, i.Target, service, cert.IssuerCertificate, nil)
+		if err != nil {
+			return err
+		}
+
+		err = l.configureIntermediateCertificates(client, i, service)
+		if err != nil {
+			//
+			return err
+		}
+	}
+
+	// SECOND, UPLOAD THE CERTIFICATE AS A BUNDLE
+	// err = l.uploadCertificates(client, i.Target, name, cert)
+	err = l.uploadCertificates(client, i.Target, name, cert.Certificate, cert.PrivateKey)
 	if err != nil {
 		return err
 	}
@@ -589,47 +703,6 @@ func (l Launcher) updateEnvironment(i config.Installation, name string, cert *ce
 			return err
 		}
 	}
-
-	fmt.Println(string(cert.IssuerCertificate))
-	time.Sleep(5 * time.Second)
-	certBlock, _ := pem.Decode(cert.Certificate)
-	if certBlock == nil {
-		return fmt.Errorf("failed to parse PEM block containing the public key for certificate %s", name)
-	}
-	var certPub *x509.Certificate
-	certPub, err = x509.ParseCertificate(certBlock.Bytes)
-	if err != nil {
-		return fmt.Errorf("failed to parse DER encoded public key for certificate %s with message %w: ", name, err)
-	}
-	slog.Debug("issuer certificate information", "cn", certPub.Subject)
-
-	// TODO ISSUER CERT BLOCK - START
-	block, _ := pem.Decode(cert.IssuerCertificate)
-	if block == nil {
-		return fmt.Errorf("failed to parse PEM block containing the public key for certificate %s", name)
-	}
-	var pub *x509.Certificate
-	pub, err = x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		return fmt.Errorf("failed to parse DER encoded public key for certificate %s with message %w: ", name, err)
-	}
-	slog.Debug("issuer certificate information", "cn", pub.Subject)
-
-	sslc := controllers.NewSslCertKeyController(client)
-	filter := make(map[string]string)
-	filter["serial"] = fmt.Sprintf("%X", pub.SerialNumber)
-	result, cerr := sslc.List(filter, []string{"certkey", "subject", "serial"})
-	if cerr != nil {
-		return fmt.Errorf("error while getting list of ca certs")
-	}
-	for k, v := range result.Data {
-		fmt.Println(k, v.Name, v.Subject)
-		fmt.Println(k, v.Name, pub.Subject)
-		fmt.Println(k, v.Name, v.Serial)
-		fmt.Println(k, v.Name, fmt.Sprintf("%X", pub.SerialNumber), pub.Issuer)
-		fmt.Println("-----")
-	}
-	// TODO ISSUER CERT BLOCK - DONE
 
 	slog.Info("saving config on target", "target", i.Target)
 	if err = client.SaveConfig(); err != nil {
