@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/corelayer/clapp v0.0.0-20230927091536-af91493964ff
-	github.com/corelayer/netscaleradc-nitro-go v0.0.0-20231009124829-2b284972bee4
+	github.com/corelayer/netscaleradc-nitro-go v0.0.0-20231018132457-1c9b4641f7db
 	github.com/go-acme/lego/v4 v4.14.2
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.17.0

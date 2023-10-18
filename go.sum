@@ -157,6 +157,8 @@ github.com/corelayer/clapp v0.0.0-20230927091536-af91493964ff h1:W9lp84qL9Q99swh
 github.com/corelayer/clapp v0.0.0-20230927091536-af91493964ff/go.mod h1:G/bE/uo5IqaJoBXJKpikiqIF6S1M7lmtA5XeI3LpkJY=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20231009124829-2b284972bee4 h1:36iR8or/Cg1zbknG9IBw8DOmN/uRmWfIxg9C+w4m0hE=
 github.com/corelayer/netscaleradc-nitro-go v0.0.0-20231009124829-2b284972bee4/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20231018132457-1c9b4641f7db h1:1fKQaKCSLX4Zyi4EUNu5l0YPjcCp/OsEhtJCh6ZTp4c=
+github.com/corelayer/netscaleradc-nitro-go v0.0.0-20231018132457-1c9b4641f7db/go.mod h1:CMJif5vwTPQHqon2Jeq8k1PrliEhxO2MNgc+CLhpgxA=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-semver v0.3.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=

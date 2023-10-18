@@ -139,6 +139,9 @@ var Command = clapp.Command{
 				return err
 			}
 
+			appConfig.Services = append(appConfig.Services, config.ACME_SERVICE_LETSENCRYPT_STAGING)
+			appConfig.Services = append(appConfig.Services, config.ACME_SERVICE_LETSENCRYPT_PRODUCTION)
+
 			var c command.Request
 			if name != "" {
 				c = command.Request{

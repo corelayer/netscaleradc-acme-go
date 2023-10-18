@@ -48,6 +48,7 @@ const (
 type Launcher struct {
 	loader               Loader
 	organizations        []registry.Organization
+	services             []config.Service
 	users                []config.User
 	providerParams       []config.ProviderParameters
 	timestamp            string
@@ -60,12 +61,14 @@ type Launcher struct {
 	accounts             map[models.UserServiceLink]*models.Account
 }
 
-func NewLauncher(path string, organizations []registry.Organization, users []config.User, params []config.ProviderParameters) *Launcher {
+// TODO REFACTOR LAUNCHER
+func NewLauncher(c config.Application) *Launcher {
 	return &Launcher{
-		loader:               NewLoader(path),
-		organizations:        organizations,
-		users:                users,
-		providerParams:       params,
+		loader:               NewLoader(c.ConfigPath),
+		organizations:        c.Organizations,
+		services:             c.Services,
+		users:                c.Users,
+		providerParams:       c.Parameters,
 		timestamp:            time.Now().Format("20060102150405"),
 		providerChannels:     make(map[string]chan config.Certificate),
 		installationChannels: make(map[config.Target]chan config.Certificate),
@@ -251,6 +254,15 @@ func (l Launcher) errorProcessor(wg *sync.WaitGroup) {
 	}
 }
 
+func (l Launcher) getServiceUrl(service string) (string, error) {
+	for _, s := range l.services {
+		if s.Name == service {
+			return s.Url, nil
+		}
+	}
+	return "", fmt.Errorf("service %s does not exist", service)
+}
+
 func (l Launcher) getAccount(username string, url string) (*models.Account, error) {
 	var (
 		err     error
@@ -285,16 +297,23 @@ func (l Launcher) getUser(username string) (config.User, error) {
 	return config.User{}, fmt.Errorf("user %s does not exist", username)
 }
 
-func (l Launcher) getLegoClient(username string, url string, keyType certcrypto.KeyType, timeout int) (*lego.Client, error) {
+func (l Launcher) getLegoClient(username string, service string, keyType certcrypto.KeyType, timeout int) (*lego.Client, error) {
 	var (
 		err            error
+		url            string
 		account        *models.Account
 		requestTimeout time.Duration
 		client         *lego.Client
 	)
 
 	l.registrationMutex.Lock()
-	slog.Debug("locking for acme user account validation", "user", username, "service", url)
+	slog.Debug("locking for acme user account validation", "user", username, "service", service)
+	url, err = l.getServiceUrl(service)
+	if err != nil {
+		slog.Debug("could not find service", "service", service)
+		return nil, fmt.Errorf("could not find user %s for service %s with message: %w", username, url, err)
+	}
+
 	account, err = l.getAccount(username, url)
 	if err != nil {
 		slog.Debug("could not find user", "username", username, "service", url)
@@ -353,7 +372,7 @@ func (l Launcher) executeAcmeRequest(cert config.Certificate) (*certificate.Reso
 	)
 	slog.Info("execute acme request for certificate", "certificate", cert.Name)
 
-	client, err = l.getLegoClient(cert.Request.User, cert.Request.GetServiceUrl(), cert.Request.GetKeyType(), cert.Request.Timeout)
+	client, err = l.getLegoClient(cert.Request.User, cert.Request.Challenge.Service, cert.Request.GetKeyType(), cert.Request.Timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -570,6 +589,47 @@ func (l Launcher) updateEnvironment(i config.Installation, name string, cert *ce
 			return err
 		}
 	}
+
+	fmt.Println(string(cert.IssuerCertificate))
+	time.Sleep(5 * time.Second)
+	certBlock, _ := pem.Decode(cert.Certificate)
+	if certBlock == nil {
+		return fmt.Errorf("failed to parse PEM block containing the public key for certificate %s", name)
+	}
+	var certPub *x509.Certificate
+	certPub, err = x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return fmt.Errorf("failed to parse DER encoded public key for certificate %s with message %w: ", name, err)
+	}
+	slog.Debug("issuer certificate information", "cn", certPub.Subject)
+
+	// TODO ISSUER CERT BLOCK - START
+	block, _ := pem.Decode(cert.IssuerCertificate)
+	if block == nil {
+		return fmt.Errorf("failed to parse PEM block containing the public key for certificate %s", name)
+	}
+	var pub *x509.Certificate
+	pub, err = x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return fmt.Errorf("failed to parse DER encoded public key for certificate %s with message %w: ", name, err)
+	}
+	slog.Debug("issuer certificate information", "cn", pub.Subject)
+
+	sslc := controllers.NewSslCertKeyController(client)
+	filter := make(map[string]string)
+	filter["serial"] = fmt.Sprintf("%X", pub.SerialNumber)
+	result, cerr := sslc.List(filter, []string{"certkey", "subject", "serial"})
+	if cerr != nil {
+		return fmt.Errorf("error while getting list of ca certs")
+	}
+	for k, v := range result.Data {
+		fmt.Println(k, v.Name, v.Subject)
+		fmt.Println(k, v.Name, pub.Subject)
+		fmt.Println(k, v.Name, v.Serial)
+		fmt.Println(k, v.Name, fmt.Sprintf("%X", pub.SerialNumber), pub.Issuer)
+		fmt.Println("-----")
+	}
+	// TODO ISSUER CERT BLOCK - DONE
 
 	slog.Info("saving config on target", "target", i.Target)
 	if err = client.SaveConfig(); err != nil {

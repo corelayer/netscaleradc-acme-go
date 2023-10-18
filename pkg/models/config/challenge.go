@@ -16,14 +16,6 @@
 
 package config
 
-// Let's Encrypt Service Environments
-const (
-	ACME_SERVICE_LETSENCRYPT_PRODUCTION     = "LE_PRODUCTION"
-	ACME_SERVICE_LETSENCRYPT_PRODUCTION_URL = "https://acme-v02.api.letsencrypt.org/directory"
-	ACME_SERVICE_LETSENCRYPT_STAGING        = "LE_STAGING"
-	ACME_SERVICE_LETSENCRYPT_STAGING_URL    = "https://acme-staging-v02.api.letsencrypt.org/directory"
-)
-
 // ACME Protocol challenge types
 const (
 	// NetScaler specific challenge types are defined in package netscaleradc

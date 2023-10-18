@@ -45,17 +45,6 @@ type Request struct {
 	basePath  string
 }
 
-func (r Request) GetServiceUrl() string {
-	switch r.Challenge.Service {
-	case ACME_SERVICE_LETSENCRYPT_PRODUCTION:
-		return ACME_SERVICE_LETSENCRYPT_PRODUCTION_URL
-	case ACME_SERVICE_LETSENCRYPT_STAGING:
-		return ACME_SERVICE_LETSENCRYPT_STAGING_URL
-	default:
-		return r.Challenge.Service
-	}
-}
-
 func (r Request) GetChallengeProvider(environment registry.Environment, timestamp string) (challenge.Provider, error) {
 	switch r.Challenge.Provider {
 	case netscaleradc.ACME_CHALLENGE_PROVIDER_NETSCALER_HTTP_GLOBAL:

@@ -29,6 +29,7 @@ type Application struct {
 	ConfigPath string `json:"configPath" yaml:"configPath" mapstructure:"configPath"`
 	// Daemon        Daemon                  `json:"daemon" yaml:"daemon" mapstructure:"daemon"`
 	Organizations []registry.Organization `json:"organizations" yaml:"organizations" mapstructure:"organizations"`
+	Services      []Service               `json:"services" yaml:"services" mapstructure:"services"`
 	Users         []User                  `json:"users" yaml:"users" mapstructure:"users"`
 	Parameters    []ProviderParameters    `json:"providerParameters" yaml:"providerParameters" mapstructure:"providerParameters"`
 }
