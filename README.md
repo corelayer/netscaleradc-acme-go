@@ -27,6 +27,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Global configuration](#global-configuration)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Config path](#config-path)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Organizations](#organizations)</br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Services](#services)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Users](#users)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Provider parameters](#provider-parameters)</br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Examples](#examples)</br>
@@ -469,6 +470,9 @@ organizations:
           validateServerCertificate: <true | false>
           logTlsSecrets: <true | false>
           autoLogin: <true | false>
+services:
+  - name: <service name>
+    url: <service url>
 users:
   - name: <user name for reference in certificate configuration files>
     email: <user e-mail address>
@@ -492,6 +496,7 @@ providerParameters:
 As you can see, the global configuration has several sections, which we will discuss in more detail below:
 - [config path](#config-path)
 - [organizations](#organizations)
+- [services](#services)
 - [users](#users)
 - [provider parameters](#provider-parameters)
 
@@ -502,6 +507,22 @@ As you can see, the global configuration has several sections, which we will dis
 [Back to top](#lets-encrypt-for-netscaler-adc)
 
 #### Organizations
+
+[Back to top](#lets-encrypt-for-netscaler-adc)
+
+#### Services
+
+Lens comes with built-in support for Let's Encrypt, both the production (```LE_PRODUCTION```) and staging (```LE_STAGING```) environments.</br>
+If you want to use another certificate authority,such as Sectigo or DigiCert, you will have to configure your account for use with the ACME protocol.
+
+Once configured, you will get a custom service URL which you can configure in the services section:
+```yaml
+services:
+  - name: <service name>
+    url: <service url>
+```
+
+Specify a service name, which can be referenced later in the certificate configuration.
 
 [Back to top](#lets-encrypt-for-netscaler-adc)
 
@@ -759,7 +780,7 @@ request:
     environment: <environment name>
   user: <user name referenced from users section in global config file>
   challenge:
-    service: LE_STAGING | LE_PRODUCTION | <custom url>
+    service: LE_STAGING | LE_PRODUCTION | <service name>
     type: <http-01 | dns-01>
     provider: <netscaler-http-global | netscaler-adns | <name of dns provider>
     providerParameters: <providerParameters name from global config file>
@@ -797,7 +818,7 @@ We need to specify the organization and environment name to select which NetScal
 
 ##### Challenge
 ###### Service
-You can either choose one of the pre-defined services, or specify your own ACME Service URL.
+You can either choose one of the pre-defined services, or specify your own ACME Service (as configured in the global configuration file).
 - ```LE_STAGING```: Let's Encrypt STAGING Environment
 - ```LE_PRODUCTION```: Let's Encrypt PRODUCTION Environment
 
