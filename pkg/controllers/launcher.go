@@ -257,6 +257,7 @@ func (l Launcher) errorProcessor(wg *sync.WaitGroup) {
 func (l Launcher) getServiceUrl(service string) (string, error) {
 	for _, s := range l.services {
 		if s.Name == service {
+			slog.Debug("found service url", "service", service, "url", s.Url)
 			return s.Url, nil
 		}
 	}

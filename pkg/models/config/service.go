@@ -39,5 +39,5 @@ var (
 // TODO Validation: enforce no whitespace in service name
 type Service struct {
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
-	Url  string `json:"email" yaml:"email" mapstructure:"email"`
+	Url  string `json:"url" yaml:"url" mapstructure:"url"`
 }
