@@ -1,7 +1,7 @@
 {
   "trace_info": "",
   "parent_id": "",
-  "name": "LENS_INSTALLATION_ADM_CONFIGJOB",
+  "name": "LENS_INSTALLATION_ADM_CONFIG_JOB",
   "commands": [
     {
       "trace_info": "",
@@ -13,9 +13,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_HA_SHOW ALLOW \"(^show\\\\s+ha\\\\s+node\\\\s+0)\"",
-      "id": "f374d85a-c9ee-4e82-9db1-010593b0628f"
+      "id": "7bf03a00-a6e6-4db4-8b89-40914cc3b82a"
     },
     {
       "trace_info": "",
@@ -27,9 +27,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_DNS_TXT_SHOW ALLOW \"(^show\\\\s+dns\\\\s+txtRec\\\\s+_acme-challenge\\\\..*)\"",
-      "id": "4a7f063b-b3c2-435c-8120-160e0199e779"
+      "id": "8bca5aba-282d-42e3-92e2-2a0a9598f483"
     },
     {
       "trace_info": "",
@@ -41,9 +41,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_DNS_TXT_ADD ALLOW \"(^add\\\\s+dns\\\\s+txtRec\\\\s+_acme-challenge\\\\..*\\\\.\\\\s+[a-zA-Z0-9._-]+\\\\s+-TTL\\\\s+\\\\d+)\"",
-      "id": "734ae930-f47d-4bb2-be3f-46d7260a5db9"
+      "id": "cefdedba-2cde-4da0-84e6-59067066e67c"
     },
     {
       "trace_info": "",
@@ -55,9 +55,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_DNS_TXT_RM ALLOW \"(^rm\\\\s+dns\\\\s+txtRec\\\\s+_acme-challenge\\\\..*\\\\.\\\\s+-recordId\\\\s+\\\\d+)\"",
-      "id": "bb7eb260-a686-4cac-8385-66d66b5b220d"
+      "id": "785248eb-2529-4554-b203-5841a2a2de79"
     },
     {
       "trace_info": "",
@@ -69,9 +69,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_RSA_ADD ALLOW q<(^add\\s+responder\\s+action\\s+RSA_LENS_.*\\d{14}\\s+respondwith\\s+q{\"HTTP/1.1\\s+200\\s+OK\\\\r\\\\n\\\\r\\\\n[a-zA-Z0-9._-]+\"})>",
-      "id": "59266aef-d7ef-4868-aadb-bd4597e1f693"
+      "id": "2a7e5440-9407-4a76-ad2a-d1276bc3244b"
     },
     {
       "trace_info": "",
@@ -83,9 +83,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_RSA_RM ALLOW \"(^rm\\\\s+responder\\\\s+action\\\\s+RSA_LENS_.*\\\\d{14})\"",
-      "id": "943afb28-1cae-4b45-b1e3-bfe708609460"
+      "id": "2060fd0e-c9e1-480f-af82-2d4eec86ea1d"
     },
     {
       "trace_info": "",
@@ -97,9 +97,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "add system cmdPolicy CMD_LENS_RSP_ADD ALLOW q<(^add\\s+responder\\s+policy\\s+RSP_LENS_('domain'.*\\d{14})\\s+\"HTTP.REQ.HOSTNAME.EQ\\(\\\\\".*\\\\\"\\)\\s+&&\\s+HTTP.REQ.URL.EQ\\(\\\\\"/.well-known/acme-challenge/[a-zA-Z0-9_-]*\\\\\"\\)\" RSA_LENS_\\k{domain})>",
-      "id": "e54611a1-e0a3-4414-8fbf-5101688ed0e0"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "add system cmdPolicy CMD_LENS_RSP_ADD ALLOW q<(^add\\s+responder\\s+policy\\s+RSP_LENS_.*_\\d{14}\\s+\"HTTP.REQ.HOSTNAME.EQ\\(\\\\\".*\\\\\"\\)\\s+&&\\s+HTTP.REQ.URL.EQ\\(\\\\\"/.well-known/acme-challenge/[a-zA-Z0-9_-]*\\\\\"\\)\" RSA_LENS_.*_\\d{14})>",
+      "id": "cee096f4-4c72-40fb-9fc1-4204bc3b9fdc"
     },
     {
       "trace_info": "",
@@ -111,9 +111,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_RSP_RM ALLOW \"(^rm\\\\s+responder\\\\s+policy\\\\s+RSP_LENS_.*\\\\d{14})\"",
-      "id": "1f1ae818-9e07-4ffa-b72a-4f36ce862641"
+      "id": "6af1cb0c-e112-4802-9f62-ac0e40c63192"
     },
     {
       "trace_info": "",
@@ -125,9 +125,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_RSPL_GLOBAL_SHOW ALLOW \"(^show\\\\s+responder\\\\s+global)|(^show\\\\s+responder\\\\s+global\\\\s+-type\\\\s+REQ_OVERRIDE)\"",
-      "id": "3d6b09d5-6738-46ad-a5db-1a03dd4bebe0"
+      "id": "5b791f9e-0612-40da-aaa3-b5afbf4a803d"
     },
     {
       "trace_info": "",
@@ -139,9 +139,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_RSPL_GLOBAL_BIND ALLOW \"(^bind\\\\s+responder\\\\s+global\\\\s+RSP_LENS_.*\\\\d{14}.*\\\\s+\\\\d+\\\\s+END\\\\s+-type\\\\s+REQ_OVERRIDE)\"",
-      "id": "6a4f98b2-cda4-41ef-8b7a-fd005a295a45"
+      "id": "b7cc3482-d8b9-4e7b-935c-824ea94dfa5c"
     },
     {
       "trace_info": "",
@@ -153,9 +153,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_RSPL_GLOBAL_UNBIND ALLOW \"(^unbind\\\\s+responder\\\\s+global\\\\s+RSP_LENS_.*\\\\d{14}\\\\s+-type\\\\s+REQ_OVERRIDE)\"",
-      "id": "04babdc2-c5d7-44aa-a465-dcfcfa69b0de"
+      "id": "10a8c454-73f3-4351-848f-ff8ab3eae5b8"
     },
     {
       "trace_info": "",
@@ -167,9 +167,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_SYSTEMFILE_SHOW ALLOW \"(^show\\\\s+system\\\\s+file\\\\s+.*_\\\\d{14}\\\\.(cer|key)\\\\s+-fileLocation\\\\s+\\\"/nsconfig/ssl/LENS/.*\\\")\"",
-      "id": "f7a5d730-8783-4205-87ca-6ab39fefe5a5"
+      "id": "3420f168-8096-4dde-b81c-be08c2662306"
     },
     {
       "trace_info": "",
@@ -181,9 +181,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_SYSTEMFILE_ADD ALLOW \"(^add\\\\s+system\\\\s+file\\\\s+.*_\\\\d{14}\\\\.(cer|key)\\\\s+-fileLocation\\\\s+\\\"/nsconfig/ssl/LENS/\\\")\"",
-      "id": "226ec623-4638-49e8-878f-3f15d4d3be0c"
+      "id": "4c2560e3-417a-474c-a5d5-9a3add7e81ef"
     },
     {
       "trace_info": "",
@@ -195,9 +195,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_SYSTEMFILE_RM ALLOW \"(^rm\\\\s+system\\\\s+file\\\\s+.*_\\\\d{14}\\\\.(cer|key)\\\\s+-fileLocation\\\\s+\\\"/nsconfig/ssl/LENS/.*\\\")\"",
-      "id": "e587a8e8-be68-4694-8de9-fe077e1c32d2"
+      "id": "e842a27c-8a67-41ad-9026-800bab49ef07"
     },
     {
       "trace_info": "",
@@ -209,9 +209,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "add system cmdPolicy CMD_LENS_SSL_CERTFILE_SHOW ALLOW \"(^show\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*)|(^show\\\\s+ssl\\\\s+certKey)\"",
-      "id": "0ea1906f-eeca-4cf7-99f3-9284009dcadd"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "add system cmdPolicy CMD_LENS_SSL_CERTKEY_SHOW ALLOW \"(^show\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*)|(^show\\\\s+ssl\\\\s+certKey)\"",
+      "id": "1d6b6d9c-43f1-4011-a0f1-1cc99e2b7175"
     },
     {
       "trace_info": "",
@@ -223,9 +223,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "add system cmdPolicy CMD_LENS_SSL_CERTFILE_ADD ALLOW \"(^add\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*\\\\s+-cert\\\\s+\\\"/nsconfig/ssl/LENS/(\\'domain\\'.*_\\\\d{14}).cer\\\"\\\\s+-key\\\\s+\\\"/nsconfig/ssl/LENS/\\\\k{domain}.key\\\".*)\"",
-      "id": "c111b12f-c7a9-43d0-8c84-61027feac915"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "add system cmdPolicy CMD_LENS_SSL_CERTKEY_ADD ALLOW \"(^add\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*\\\\s+-cert\\\\s+\\\"/nsconfig/ssl/LENS/.*_\\\\d{14}.cer\\\"\\\\s+-key\\\\s+\\\"/nsconfig/ssl/LENS/.*_\\\\d{14}.key\\\".*)\"",
+      "id": "5d04e575-38ac-413a-ba35-98f7b49720dc"
     },
     {
       "trace_info": "",
@@ -237,9 +237,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "add system cmdPolicy CMD_LENS_SSL_CERTFILE_UPDATE ALLOW \"(^update\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*\\\\s+-cert\\\\s+\\\"/nsconfig/ssl/LENS/(\\'domain\\'.*_\\\\d{14}).cer\\\"\\\\s+-key\\\\s+\\\"/nsconfig/ssl/LENS/\\\\k{domain}.key\\\".*)\"",
-      "id": "649944e4-6016-45e2-9477-5446a63cfea0"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "add system cmdPolicy CMD_LENS_SSL_CERTKEY_UPDATE ALLOW \"(^update\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*\\\\s+-cert\\\\s+\\\"/nsconfig/ssl/LENS/.*_\\\\d{14}.cer\\\"\\\\s+-key\\\\s+\\\"/nsconfig/ssl/LENS/.*_\\\\d{14}.key\\\".*)\"",
+      "id": "a35a135c-1860-4d18-98e2-6d0c21d6b13b"
     },
     {
       "trace_info": "",
@@ -251,9 +251,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "add system cmdPolicy CMD_LENS_SSL_CERTFILE_RM ALLOW \"(^rm\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*)\"",
-      "id": "634668f5-21ea-4f88-8d09-1c197c3b1e1d"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "add system cmdPolicy CMD_LENS_SSL_CERTKEY_RM ALLOW \"(^rm\\\\s+ssl\\\\s+certKey\\\\s+LENS_.*)\"",
+      "id": "4c51d012-45d0-4008-8205-781b3d521043"
     },
     {
       "trace_info": "",
@@ -265,9 +265,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_SSL_VSERVER_BIND ALLOW \"(^bind\\\\s+ssl\\\\s+vserver\\\\s+.*\\\\s+-priority\\\\s+\\\\d+\\\\s+-certkeyName\\\\s+LENS_.*)\"",
-      "id": "eac623c8-9fe2-4a23-8eb5-36e41d88e55f"
+      "id": "1a541a9a-5d80-4adf-b478-0668a999e0c4"
     },
     {
       "trace_info": "",
@@ -279,9 +279,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_SSL_SERVICE_BIND ALLOW \"(^bind\\\\s+ssl\\\\s+service\\\\s+.*\\\\s+-priority\\\\s+\\\\d+\\\\s+-certkeyName\\\\s+LENS_.*)\"",
-      "id": "6a9e81a7-5446-4489-943b-c43318cddc35"
+      "id": "a966e87b-213c-4ab6-b368-d34a724bed6a"
     },
     {
       "trace_info": "",
@@ -293,9 +293,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system cmdPolicy CMD_LENS_SAVE_CONFIG ALLOW \"(^save ns config)\"",
-      "id": "a1a100dc-e97a-495a-8e3c-1c64b9b17b3d"
+      "id": "1dcfebd7-6aa8-4c8c-9673-ded4ce4ab0c5"
     },
     {
       "trace_info": "",
@@ -307,9 +307,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "add system user $username$ $password$ -externalAuth DISABLED -timeout 60 -maxsession 20 -allowedManagementInterface API",
-      "id": "008cc901-be33-45db-8fc1-819736766de1"
+      "id": "f660145a-e465-4a24-b6b9-8a4c3cea8c6d"
     },
     {
       "trace_info": "",
@@ -321,9 +321,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_HA_SHOW 1001",
-      "id": "01a9fe9e-f82f-4c90-8d96-b35545d4bfd6"
+      "id": "675b7cd4-fa99-4a82-8c30-0f43068ee554"
     },
     {
       "trace_info": "",
@@ -335,9 +335,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_DNS_TXT_SHOW 1101",
-      "id": "f057b373-b3c8-4b47-92df-ed8019244839"
+      "id": "67c2897e-3d69-439f-9a8b-acd9b3ef30f6"
     },
     {
       "trace_info": "",
@@ -349,9 +349,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_DNS_TXT_ADD 1102",
-      "id": "bec5b98c-e915-4845-b232-66113a2bc230"
+      "id": "3c380194-f56c-4049-87b6-c5f090b73a2d"
     },
     {
       "trace_info": "",
@@ -363,9 +363,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_DNS_TXT_RM 1103",
-      "id": "18247d97-6bc6-40ee-b9d3-4d0bb0c5052f"
+      "id": "d77f58e9-fcb5-4fa6-9d15-783d22671144"
     },
     {
       "trace_info": "",
@@ -377,9 +377,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_RSA_ADD 1201",
-      "id": "637ad597-fc6c-442d-9684-9502355eb624"
+      "id": "35733aa2-0df0-4fa4-86b8-95056b0a6d22"
     },
     {
       "trace_info": "",
@@ -391,9 +391,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_RSA_RM 1202",
-      "id": "ff5a1fb5-2af9-4c0d-a641-07449e1feb3f"
+      "id": "c342d226-eeb5-4630-b881-ebf52bf76a2f"
     },
     {
       "trace_info": "",
@@ -405,9 +405,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_RSP_ADD 1211",
-      "id": "1883cbb8-19d2-42dc-a95f-174019125ec2"
+      "id": "7f5bfcb5-b151-4526-9888-c2a91033a171"
     },
     {
       "trace_info": "",
@@ -419,9 +419,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_RSP_RM 1212",
-      "id": "7cb9f6e8-43b0-4797-972a-7181e61de0e1"
+      "id": "38399db9-8b16-49d8-b594-b5e689012135"
     },
     {
       "trace_info": "",
@@ -433,9 +433,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_RSPL_GLOBAL_SHOW 1221",
-      "id": "1fd56a2f-2536-418b-b913-e1f88557e145"
+      "id": "6098ec8e-7f05-4047-99e5-2d15401d05aa"
     },
     {
       "trace_info": "",
@@ -447,9 +447,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_RSPL_GLOBAL_BIND 1222",
-      "id": "d742529f-56d2-4f83-93b7-dd997d29466f"
+      "id": "4bb2f55f-19f0-4446-a1e2-3212fefdbefa"
     },
     {
       "trace_info": "",
@@ -461,9 +461,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_RSPL_GLOBAL_UNBIND 1223",
-      "id": "0074dae8-f197-48cd-8d58-a5b2bd600f25"
+      "id": "3cdc2514-8ca1-4a2f-9b13-62f7b74ea7e8"
     },
     {
       "trace_info": "",
@@ -475,9 +475,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_SYSTEMFILE_SHOW 1301",
-      "id": "3a2d5eb1-c608-4f12-b216-645f29ce7d88"
+      "id": "0d0f498e-f298-4ffb-a75f-c3acf6a3b859"
     },
     {
       "trace_info": "",
@@ -489,9 +489,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_SYSTEMFILE_ADD 1302",
-      "id": "5b0fd138-32f1-4931-8888-293958cfe328"
+      "id": "2b094c04-106b-46c6-8331-7f44a47205ab"
     },
     {
       "trace_info": "",
@@ -503,9 +503,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_SYSTEMFILE_RM 1303",
-      "id": "bc33b577-19d7-4d51-b205-ebc9d46694f7"
+      "id": "84b44f6d-a1e4-436a-8c6c-9bd41fc8e38b"
     },
     {
       "trace_info": "",
@@ -517,9 +517,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "bind system user $username$ CMD_LENS_SSL_CERTFILE_SHOW 1401",
-      "id": "727b785e-ce54-4102-95d4-2db9ad100602"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "bind system user $username$ CMD_LENS_SSL_CERTKEY_SHOW 1401",
+      "id": "1523875a-41b7-4cb8-b2c3-e092320fc789"
     },
     {
       "trace_info": "",
@@ -531,9 +531,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "bind system user $username$ CMD_LENS_SSL_CERTFILE_ADD 1402",
-      "id": "a3de26de-2930-42c8-8ce8-2868bbe1b3a4"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "bind system user $username$ CMD_LENS_SSL_CERTKEY_ADD 1402",
+      "id": "49372b2f-d1ae-4ee4-9793-275d840b9b55"
     },
     {
       "trace_info": "",
@@ -545,9 +545,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "bind system user $username$ CMD_LENS_SSL_CERTFILE_UPDATE 1403",
-      "id": "5f4952dc-c2a5-40c5-b9ce-c1f6c8876d4e"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "bind system user $username$ CMD_LENS_SSL_CERTKEY_UPDATE 1403",
+      "id": "604c192c-5ed6-4480-85c8-8ef2b51a150c"
     },
     {
       "trace_info": "",
@@ -559,9 +559,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "command": "bind system user $username$ CMD_LENS_SSL_CERTFILE_RM 1404",
-      "id": "0b757b73-2b54-43b4-bc49-6b0581c08abe"
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "command": "bind system user $username$ CMD_LENS_SSL_CERTKEY_RM 1404",
+      "id": "b649458e-7f8d-48d1-a205-03d346184ed7"
     },
     {
       "trace_info": "",
@@ -573,9 +573,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_SSL_VSERVER_BIND 1501",
-      "id": "6551d46f-b2aa-47a8-a458-07bb0f012db2"
+      "id": "9e89e747-1722-43f6-954c-3d509aa16ae8"
     },
     {
       "trace_info": "",
@@ -587,9 +587,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_SSL_SERVICE_BIND 1502",
-      "id": "3a2c746c-365b-48e5-a49c-5242dbe3cd79"
+      "id": "452c826c-26a3-46d7-8954-38cb23756347"
     },
     {
       "trace_info": "",
@@ -601,9 +601,9 @@
       "rollback_command": "",
       "nitro_resource": "",
       "protocol": "SSH",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "command": "bind system user $username$ CMD_LENS_SAVE_CONFIG 1999",
-      "id": "0b01114d-1d14-4896-8458-fb29ff1d1097"
+      "id": "76e563f2-f184-43e1-b610-755d1dbf0715"
     }
   ],
   "parent_name": "",
@@ -611,36 +611,36 @@
   "variables": [
     {
       "trace_info": "",
-      "default_value": "",
-      "id": "4d846da1-9c77-4822-8794-9e88a6ea159e",
-      "valuex": "",
-      "values_enum": [],
-      "required": "true",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
-      "description": "",
-      "display_name": "PASSWORD",
-      "values_enum_db": "",
-      "parent_name": "configuration_template",
-      "name": "password",
-      "type": "password"
-    },
-    {
-      "trace_info": "",
       "default_value": "lens",
-      "id": "6ce9e34b-13e3-4ad8-b611-fa45197c81d5",
+      "id": "321c5877-8f4c-44a1-9db5-9c188679a327",
       "valuex": "",
       "values_enum": [],
       "required": "true",
-      "parent_id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
       "description": "",
-      "display_name": "USERNAME",
+      "display_name": "username",
       "values_enum_db": "",
       "parent_name": "configuration_template",
       "name": "username",
       "type": "text_field"
+    },
+    {
+      "trace_info": "",
+      "default_value": "",
+      "id": "af90059a-9df6-4627-9264-3a0130fca7c3",
+      "valuex": "",
+      "values_enum": [],
+      "required": "true",
+      "parent_id": "73bffdb5-5575-443a-8b01-624721bd5d13",
+      "description": "",
+      "display_name": "password",
+      "values_enum_db": "",
+      "parent_name": "configuration_template",
+      "name": "password",
+      "type": "password"
     }
   ],
-  "id": "9fd66302-76a2-4661-8914-e769ec3a3c52",
+  "id": "73bffdb5-5575-443a-8b01-624721bd5d13",
   "device_family": "ns",
   "category": "",
   "description": "Let's Encrypt for NetScaler ADC User Account and Permissions Configuration Job",

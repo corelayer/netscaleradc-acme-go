@@ -127,7 +127,7 @@ Lens is designed to work with other certificate authorities who provide access t
 (^add\s+responder\s+action\s+RSA_LENS_.*\d{14}\s+respondwith\s+q{"HTTP/1.1\s+200\s+OK\\r\\n\\r\\n[a-zA-Z0-9._-]+"})
 (^rm\s+responder\s+action\s+RSA_LENS_.*\d{14})
 
-(^add\s+responder\s+policy\s+RSP_LENS_(?'domain'.*\d{14})\s+"HTTP.REQ.HOSTNAME.EQ\(\\".*\\"\)\s+&&\s+HTTP.REQ.URL.EQ\(\\"/.well-known/acme-challenge/[a-zA-Z0-9_-]*\\"\)" RSA_LENS_\k{domain})
+(^add\s+responder\s+policy\s+RSP_LENS_.*_\d{14}\s+"HTTP.REQ.HOSTNAME.EQ\(\\".*\\"\)\s+&&\s+HTTP.REQ.URL.EQ\(\\"/.well-known/acme-challenge/[a-zA-Z0-9_-]*\\"\)" RSA_LENS_.*_\d{14})
 (^rm\s+responder\s+policy\s+RSP_LENS_.*\d{14})
 
 (^show\s+responder\s+global)|(^show\s+responder\s+global\s+-type\s+REQ_OVERRIDE)
@@ -143,8 +143,8 @@ Lens is designed to work with other certificate authorities who provide access t
 ##### SSL CertKey Permissions
 ```regexp
 (^show\s+ssl\s+certKey\s+LENS_.*)|(^show\s+ssl\s+certKey)
-(^add\s+ssl\s+certKey\s+LENS_.*\s+-cert\s+"/nsconfig/ssl/LENS/(?'domain'.*_\d{14}).cer"\s+-key\s+"/nsconfig/ssl/LENS/\k{domain}.key".*)
-(^update\s+ssl\s+certKey\s+LENS_.*\s+-cert\s+"/nsconfig/ssl/LENS/(?'domain'.*_\d{14}).cer"\s+-key\s+"/nsconfig/ssl/LENS/\k{domain}.key".*)
+(^add\s+ssl\s+certKey\s+LENS_.*\s+-cert\s+"/nsconfig/ssl/LENS/.*_\d{14}.cer"\s+-key\s+"/nsconfig/ssl/LENS/.*_\d{14}.key".*)
+(^update\s+ssl\s+certKey\s+LENS_.*\s+-cert\s+"/nsconfig/ssl/LENS/.*_\d{14}.cer"\s+-key\s+"/nsconfig/ssl/LENS/.*_\d{14}.key".*)
 (^rm\s+ssl\s+certKey\s+LENS_.*)
 ```
 ##### SSL Virtual Server / Service Permissions
@@ -176,7 +176,7 @@ add system cmdPolicy CMD_LENS_DNS_TXT_RM ALLOW "(^rm\\s+dns\\s+txtRec\\s+_acme-c
 # Responder Permissions
 add system cmdPolicy CMD_LENS_RSA_ADD ALLOW q<(^add\s+responder\s+action\s+RSA_LENS_.*\d{14}\s+respondwith\s+q{"HTTP/1.1\s+200\s+OK\\r\\n\\r\\n[a-zA-Z0-9._-]+"})>
 add system cmdPolicy CMD_LENS_RSA_RM ALLOW "(^rm\\s+responder\\s+action\\s+RSA_LENS_.*\\d{14})"
-add system cmdPolicy CMD_LENS_RSP_ADD ALLOW q<(^add\s+responder\s+policy\s+RSP_LENS_(?'domain'.*\d{14})\s+"HTTP.REQ.HOSTNAME.EQ\(\\".*\\"\)\s+&&\s+HTTP.REQ.URL.EQ\(\\"/.well-known/acme-challenge/[a-zA-Z0-9_-]*\\"\)" RSA_LENS_\k{domain})>
+add system cmdPolicy CMD_LENS_RSP_ADD ALLOW q<(^add\s+responder\s+policy\s+RSP_LENS_.*_\d{14}\s+"HTTP.REQ.HOSTNAME.EQ\(\\".*\\"\)\s+&&\s+HTTP.REQ.URL.EQ\(\\"/.well-known/acme-challenge/[a-zA-Z0-9_-]*\\"\)" RSA_LENS_.*_\d{14})>
 add system cmdPolicy CMD_LENS_RSP_RM ALLOW "(^rm\\s+responder\\s+policy\\s+RSP_LENS_.*\\d{14})"
 add system cmdPolicy CMD_LENS_RSPL_GLOBAL_SHOW ALLOW "(^show\\s+responder\\s+global)|(^show\\s+responder\\s+global\\s+-type\\s+REQ_OVERRIDE)"
 add system cmdPolicy CMD_LENS_RSPL_GLOBAL_BIND ALLOW "(^bind\\s+responder\\s+global\\s+RSP_LENS_.*\\d{14}.*\\s+\\d+\\s+END\\s+-type\\s+REQ_OVERRIDE)"
@@ -188,10 +188,10 @@ add system cmdPolicy CMD_LENS_SYSTEMFILE_ADD ALLOW "(^add\\s+system\\s+file\\s+.
 add system cmdPolicy CMD_LENS_SYSTEMFILE_RM ALLOW "(^rm\\s+system\\s+file\\s+.*_\\d{14}\\.(cer|key)\\s+-fileLocation\\s+\"/nsconfig/ssl/LENS/.*\")"
 
 # SSL CertKey Permissions
-add system cmdPolicy CMD_LENS_SSL_CERTFILE_SHOW ALLOW "(^show\\s+ssl\\s+certKey\\s+LENS_.*)|(^show\\s+ssl\\s+certKey)"
-add system cmdPolicy CMD_LENS_SSL_CERTFILE_ADD ALLOW "(^add\\s+ssl\\s+certKey\\s+LENS_.*\\s+-cert\\s+\"/nsconfig/ssl/LENS/(?\'domain\'.*_\\d{14}).cer\"\\s+-key\\s+\"/nsconfig/ssl/LENS/\\k{domain}.key\".*)"
-add system cmdPolicy CMD_LENS_SSL_CERTFILE_UPDATE ALLOW "(^update\\s+ssl\\s+certKey\\s+LENS_.*\\s+-cert\\s+\"/nsconfig/ssl/LENS/(?\'domain\'.*_\\d{14}).cer\"\\s+-key\\s+\"/nsconfig/ssl/LENS/\\k{domain}.key\".*)"
-add system cmdPolicy CMD_LENS_SSL_CERTFILE_RM ALLOW "(^rm\\s+ssl\\s+certKey\\s+LENS_.*)"
+add system cmdPolicy CMD_LENS_SSL_CERTKEY_SHOW ALLOW "(^show\\s+ssl\\s+certKey\\s+LENS_.*)|(^show\\s+ssl\\s+certKey)"
+add system cmdPolicy CMD_LENS_SSL_CERTKEY_ADD ALLOW "(^add\\s+ssl\\s+certKey\\s+LENS_.*\\s+-cert\\s+\"/nsconfig/ssl/LENS/.*_\\d{14}.cer\"\\s+-key\\s+\"/nsconfig/ssl/LENS/.*_\\d{14}.key\".*)"
+add system cmdPolicy CMD_LENS_SSL_CERTKEY_UPDATE ALLOW "(^update\\s+ssl\\s+certKey\\s+LENS_.*\\s+-cert\\s+\"/nsconfig/ssl/LENS/.*_\\d{14}.cer\"\\s+-key\\s+\"/nsconfig/ssl/LENS/.*_\\d{14}.key\".*)"
+add system cmdPolicy CMD_LENS_SSL_CERTKEY_RM ALLOW "(^rm\\s+ssl\\s+certKey\\s+LENS_.*)"
 
 # SSL Virtual Server / Service Permissions
 add system cmdPolicy CMD_LENS_SSL_VSERVER_BIND ALLOW "(^bind\\s+ssl\\s+vserver\\s+.*\\s+-priority\\s+\\d+\\s+-certkeyName\\s+LENS_.*)"
@@ -239,10 +239,10 @@ bind system user <username> CMD_LENS_SYSTEMFILE_ADD 1302
 bind system user <username> CMD_LENS_SYSTEMFILE_RM 1303
 
 # SSL CertKey Permissions
-bind system user <username> CMD_LENS_SSL_CERTFILE_SHOW 1401
-bind system user <username> CMD_LENS_SSL_CERTFILE_ADD 1402
-bind system user <username> CMD_LENS_SSL_CERTFILE_UPDATE 1403
-bind system user <username> CMD_LENS_SSL_CERTFILE_RM 1404
+bind system user <username> CMD_LENS_SSL_CERTKEY_SHOW 1401
+bind system user <username> CMD_LENS_SSL_CERTKEY_ADD 1402
+bind system user <username> CMD_LENS_SSL_CERTKEY_UPDATE 1403
+bind system user <username> CMD_LENS_SSL_CERTKEY_RM 1404
 
 # SSL Virtual Server / Service Permissions
 bind system user <username> CMD_LENS_SSL_VSERVER_BIND 1501
