@@ -46,11 +46,8 @@ const (
 )
 
 type Launcher struct {
-	loader               Loader
-	organizations        []registry.Organization
-	services             []config.Service
-	users                []config.User
-	providerParams       []config.ProviderParameters
+	appConfig config.Application
+
 	timestamp            string
 	providerChannels     map[string]chan config.Certificate
 	installationChannels map[config.Target]chan config.Certificate
@@ -61,14 +58,10 @@ type Launcher struct {
 	accounts             map[models.UserServiceLink]*models.Account
 }
 
-// TODO REFACTOR LAUNCHER
+// NewLauncher TODO REFACTOR LAUNCHER
 func NewLauncher(c config.Application) *Launcher {
 	return &Launcher{
-		loader:               NewLoader(c.ConfigPath),
-		organizations:        c.Organizations,
-		services:             c.Services,
-		users:                c.Users,
-		providerParams:       c.Parameters,
+		appConfig:            c,
 		timestamp:            time.Now().Format("20060102150405"),
 		providerChannels:     make(map[string]chan config.Certificate),
 		installationChannels: make(map[config.Target]chan config.Certificate),
@@ -82,10 +75,13 @@ func NewLauncher(c config.Application) *Launcher {
 
 func (l Launcher) Request(name string) error {
 	var (
-		err   error
-		certs map[string]config.Certificate
+		err    error
+		certs  map[string]config.Certificate
+		loader CertificateConfigurationLoader
 	)
-	certs, err = l.loader.Get(name)
+
+	loader = NewCertificateConfigurationLoader(l.appConfig.ConfigPath)
+	certs, err = loader.Get(name)
 	if err != nil {
 		return err
 	}
@@ -95,10 +91,14 @@ func (l Launcher) Request(name string) error {
 
 func (l Launcher) RequestAll() error {
 	var (
-		err   error
-		certs map[string]config.Certificate
+		err    error
+		certs  map[string]config.Certificate
+		loader CertificateConfigurationLoader
 	)
-	certs, err = l.loader.GetAll()
+
+	loader = NewCertificateConfigurationLoader(l.appConfig.ConfigPath)
+	certs, err = loader.GetAll()
+
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func (l Launcher) errorProcessor(wg *sync.WaitGroup) {
 }
 
 func (l Launcher) getServiceUrl(service string) (string, error) {
-	for _, s := range l.services {
+	for _, s := range l.appConfig.Services {
 		if s.Name == service {
 			slog.Debug("found service url", "service", service, "url", s.Url)
 			return s.Url, nil
@@ -290,7 +290,7 @@ func (l Launcher) getAccount(username string, url string) (*models.Account, erro
 }
 
 func (l Launcher) getUser(username string) (config.User, error) {
-	for _, u := range l.users {
+	for _, u := range l.appConfig.Users {
 		if u.Name == username {
 			return u, nil
 		}
@@ -612,7 +612,7 @@ func (l Launcher) configureIntermediateCertificates(c *nitro.Client, i config.In
 	return nil
 }
 
-func (l Launcher) intermediateExists(c *nitro.Client, t config.Target, name string, cert []byte) (bool, error) {
+func (l Launcher) intermediateExists(c *nitro.Client, name string, cert []byte) (bool, error) {
 	var (
 		err        error
 		controller *controllers.SslCertKeyController
@@ -667,7 +667,7 @@ func (l Launcher) updateEnvironment(i config.Installation, name string, service 
 
 	// FIRST, TRY TO UPLOAD THE CERTIFICATE CHAIN AS A BUNDLE
 	var intermediateExists = false
-	intermediateExists, err = l.intermediateExists(client, i.Target, service, cert.IssuerCertificate)
+	intermediateExists, err = l.intermediateExists(client, service, cert.IssuerCertificate)
 	if err != nil {
 		return err
 	}
@@ -814,7 +814,7 @@ func (l Launcher) bindSslService(c *nitro.Client, name string, i config.Installa
 }
 
 func (l Launcher) getEnvironment(t config.Target) (registry.Environment, error) {
-	for _, org := range l.organizations {
+	for _, org := range l.appConfig.Organizations {
 		if t.Organization == org.Name {
 			if t.Environment == "env" {
 				return registry.Environment{Name: "env"}, nil
@@ -832,7 +832,7 @@ func (l Launcher) getEnvironment(t config.Target) (registry.Environment, error) 
 }
 
 func (l Launcher) getProviderParameters(name string) (config.ProviderParameters, error) {
-	for _, p := range l.providerParams {
+	for _, p := range l.appConfig.Parameters {
 		if name == p.Name {
 			return p, nil
 		}

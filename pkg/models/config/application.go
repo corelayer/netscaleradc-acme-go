@@ -17,6 +17,7 @@
 package config
 
 import (
+	"fmt"
 	"log/slog"
 	"reflect"
 	"regexp"
@@ -32,6 +33,15 @@ type Application struct {
 	Services      []Service               `json:"services" yaml:"services" mapstructure:"services"`
 	Users         []User                  `json:"users" yaml:"users" mapstructure:"users"`
 	Parameters    []ProviderParameters    `json:"providerParameters" yaml:"providerParameters" mapstructure:"providerParameters"`
+}
+
+func (a *Application) GetProviderParameters(name string) (ProviderParameters, error) {
+	for _, p := range a.Parameters {
+		if name == p.Name {
+			return p, nil
+		}
+	}
+	return ProviderParameters{}, fmt.Errorf("could not find provider parameters for %s", name)
 }
 
 func (a *Application) UpdateEnvironmentVariables(viperEnv *viper.Viper) error {

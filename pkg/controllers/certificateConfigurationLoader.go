@@ -27,20 +27,20 @@ import (
 	"github.com/corelayer/netscaleradc-acme-go/pkg/models/config"
 )
 
-type Loader struct {
+type CertificateConfigurationLoader struct {
 	basePath   string
 	extensions []string
 }
 
-func NewLoader(path string) Loader {
-	return Loader{
+func NewCertificateConfigurationLoader(path string) CertificateConfigurationLoader {
+	return CertificateConfigurationLoader{
 		basePath:   path,
 		extensions: []string{".yaml", ".yml"},
 	}
 
 }
 
-func (l Loader) GetAll() (map[string]config.Certificate, error) {
+func (l CertificateConfigurationLoader) GetAll() (map[string]config.Certificate, error) {
 	var (
 		err    error
 		vipers map[string]*viper.Viper
@@ -66,7 +66,7 @@ func (l Loader) GetAll() (map[string]config.Certificate, error) {
 	return output, nil
 }
 
-func (l Loader) Get(name string) (map[string]config.Certificate, error) {
+func (l CertificateConfigurationLoader) Get(name string) (map[string]config.Certificate, error) {
 	var (
 		err    error
 		vipers map[string]*viper.Viper
@@ -95,7 +95,7 @@ func (l Loader) Get(name string) (map[string]config.Certificate, error) {
 	return output, nil
 }
 
-func (l Loader) getConfigFiles() ([]string, error) {
+func (l CertificateConfigurationLoader) getConfigFiles() ([]string, error) {
 	var (
 		err   error
 		files []string
@@ -108,7 +108,7 @@ func (l Loader) getConfigFiles() ([]string, error) {
 	return files, nil
 }
 
-func (l Loader) loadCertificateConfig(v *viper.Viper) (config.Certificate, error) {
+func (l CertificateConfigurationLoader) loadCertificateConfig(v *viper.Viper) (config.Certificate, error) {
 	var (
 		err    error
 		output config.Certificate
@@ -124,7 +124,7 @@ func (l Loader) loadCertificateConfig(v *viper.Viper) (config.Certificate, error
 	return output, nil
 }
 
-func (l Loader) loadViper(path string) (*viper.Viper, error) {
+func (l CertificateConfigurationLoader) loadViper(path string) (*viper.Viper, error) {
 	var (
 		err    error
 		output *viper.Viper
@@ -140,7 +140,7 @@ func (l Loader) loadViper(path string) (*viper.Viper, error) {
 	return output, nil
 }
 
-func (l Loader) loadVipers() (map[string]*viper.Viper, error) {
+func (l CertificateConfigurationLoader) loadVipers() (map[string]*viper.Viper, error) {
 	var (
 		err    error
 		files  []string
@@ -170,7 +170,7 @@ func (l Loader) loadVipers() (map[string]*viper.Viper, error) {
 	return vipers, nil
 }
 
-func (l Loader) walkConfigPath(path string) ([]string, error) {
+func (l CertificateConfigurationLoader) walkConfigPath(path string) ([]string, error) {
 	var (
 		err    error
 		files  []os.DirEntry
@@ -200,7 +200,7 @@ func (l Loader) walkConfigPath(path string) ([]string, error) {
 	return output, err
 }
 
-func (l Loader) isValidConfigFile(e os.DirEntry) bool {
+func (l CertificateConfigurationLoader) isValidConfigFile(e os.DirEntry) bool {
 	ext := filepath.Ext(e.Name())
 	for _, v := range l.extensions {
 		if v == ext {
